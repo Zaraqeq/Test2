@@ -1,4 +1,4 @@
 class rook extends Piece
 {
-    lel
+    leo
 }
