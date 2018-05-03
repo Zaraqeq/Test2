@@ -31,6 +31,7 @@ const taulellyMAX = 4;
 const taulellxMAX = 4;
 
 console.log((new Date()) + "WebSocket Server is listening on port 3000");
+console.log("asjd");
 
 server.on('connection', function connection(ws) {
     console.log('Conected');
