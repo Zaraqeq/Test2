@@ -6,7 +6,8 @@ socket.onopen = function () {
 
 let lastX, lastY;
 
-let colorPlayer1 = "blue";
+let colorPlayer1 = "yellow";
+let colorPlayer2 = "red";
 const taulellyMAX = 4;
 const taulellxMAX = 4;
 
@@ -17,10 +18,20 @@ let taulell = [
     [0, 0, 0, 0],
     [0, 0, 0, 0]
 ];
+let pint = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+];
 socket.onmessage = function (event) {
-    console.log(event.data);
+    mess = JSON.parse(event.data)
 
-    taulell = JSON.parse(event.data)
+    if (mess[0] == "Taulell") {
+        taulell = mess[1];
+    } else if (mess[0] == "Pintar") {
+        pint = mess[1];
+    }
 
     rellenar();
 };
@@ -47,6 +58,14 @@ function rellenar() {
                 //document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
             }
             if (taulell[i][x] == '0') document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";
+            if(pint[i][x]==1)
+            {
+                document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
+            } 
+            if(pint[i][x]==2)
+            {
+                document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer2;
+            } 
         }
     }
 }

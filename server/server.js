@@ -7,9 +7,9 @@ var WebSocket = require('ws'),
 var turn = true;
 var taulell = [
     ['Br', 0, 0, 0],
-    ['Br', 0, 0, 0],
     [0, 0, 0, 0],
-    [0, 0, 0, 0]
+    [0, 0, 0, 0],
+    [0, 0, 0, 'Br']
 ];
 
 var select = [
@@ -29,15 +29,20 @@ let pintat = [
 let lastX = 0, lastY = 0;
 const taulellyMAX = 4;
 const taulellxMAX = 4;
-
+var turn=true;
 console.log((new Date()) + "WebSocket Server is listening on port 3000");
-console.log("asjd");
 
 server.on('connection', function connection(ws) {
     console.log('Conected');
+    let table = ["Taulell", taulell];
+    ws.send(JSON.stringify(table));
+    let enviar = ["Pintar", pintat];
+    ws.send(JSON.stringify(enviar));
+
     ws.on('message', function incoming(data) {
         // Broadcast to everyone else.
         //console.log("Rebut: " + data);
+
         server.clients.forEach(function each(client) {
             let pos = JSON.parse(data);
             let idy = pos[0];
@@ -52,15 +57,16 @@ server.on('connection', function connection(ws) {
             } else if (taulell[idy][idx] == 0 && select[lastY][lastX] == 1) {
                 //console.log("Anterior: "+taulell);
                 //console.log('Selected: '+select);
-                if (taulell[lastY][lastX] == 'Br') moureRect(idx, idy);
+                
+                if (taulell[lastY][lastX].endsWith("r")) moureRect(idx, idy);
                 console.log("Nou: " + taulell);
                 vaciar();
                 //console.log('Selected: '+select);
                 //rellenar();
             }
-            var myJsonString = JSON.stringify(taulell);
-            console.log("JSON= " + myJsonString);
-            client.send(myJsonString);
+            let table = ["Taulell", taulell];
+            //console.log("JSON= " + myJsonString);
+            client.send(JSON.stringify(table));
 
             function vaciar() {
                 for (let i = 0; i < taulellyMAX; i++) {
@@ -74,24 +80,59 @@ server.on('connection', function connection(ws) {
                 if (idx == lastX || idy == lastY) {
                     taulell[idy][idx] = 'Br';
                     paintH(lastX, idx, idy);
-                    //paintV(lastY, idy);
+                    //paintV(lastY, idy, idx);
+                    console.log("Taula pintada: " + pintat);
                     taulell[lastY][lastX] = 0;
+                    turn=!turn;
                 }
             }
 
-            function paintH(last, cur, fix)
-            {
-                if(last!=cur)
-                {
-                    if(last<cur)
-                    {
-                        for(last; last<=cur; last++)
-                        {
-                            pintat[fix][last]=1;
+            function paintH(last, cur, fix) {
+                let color;
+                if(turn) color=1;
+                else color=2;
+                if (last < cur && last != cur) {
+                    console.log(last, cur);
+                    for (last;last <= cur; last++) {
+                        pintat[fix][last] = color;
+                        console.log("B1 Last X: " + last + " Curr X: " + cur);
+                    }
+                    console.log(last, cur);
+                    last=cur;
+                }
+                
+                if (last > cur && last != cur) {
+
+                    for (last; last >= cur; last--) {
+                        pintat[fix][last] = color;
+                        console.log("B2 Last X: " + last + " Curr X: " + cur);
+                    }
+                    last=cur;
+                }
+
+                let enviar = ["Pintar", pintat];
+                ws.send(JSON.stringify(enviar));
+            }
+
+            function paintV(last, cur, fix) {
+                if (last != cur) {
+                    if (last < cur) {
+                        for (last; last <= cur; last++) {
+                            pintat[last][fix] = 1;
+                            console.log("B1 Last Y: " + last + " CurrY: " + cur);
                         }
                     }
-                } 
-                console.log("TAULELL PINTAT: "+ pintat);
+
+                    if (last > cur) {
+                        for (last; last >= cur; last--) {
+                            pintat[last][fix] = 1;
+                            console.log("B2 LastY: " + last + " CurrY: " + cur);
+                        }
+                    }
+                }
+
+                let enviar = ["Pintar", pintat];
+                client.send(JSON.stringify(enviar));
             }
         });
     });
