@@ -5,12 +5,7 @@ var WebSocket = require('ws'),
         port: 3000,
     });
 var turn = true;
-var taulell = [
-    ['Wb', 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    ['Br', 0, 0, 'Wr']
-];
+var taulell = [];
 
 var select = [
     [0, 0, 0, 0],
@@ -19,18 +14,13 @@ var select = [
     [0, 0, 0, 0]
 ];
 
-let pintat = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-];
+let pintat = [];
 
 let diag = [];
 
 let lastX = 0, lastY = 0;
-const taulellyMAX = 4;
-const taulellxMAX = 4;
+const taulellyMAX = 24;
+const taulellxMAX = 24;
 var turn = true;
 let color;
 console.log((new Date()) + "WebSocket Server is listening on port 3000");
@@ -42,6 +32,9 @@ server.on('connection', function connection(ws) {
     let enviar = ["Pintar", pintat];
     ws.send(JSON.stringify(enviar));
     initDiag();
+    initTaulell();
+    initPint();
+    initSelect();
 
     ws.on('message', function incoming(data) {
         // Broadcast to everyone else.
@@ -196,6 +189,39 @@ server.on('connection', function connection(ws) {
         });
     });
 });
+function initPint()
+{
+    for (let i = 0; i < taulellyMAX; i++) {
+        var linea = [];
+        for (let j = 0; j < taulellxMAX; j++) {
+            linea.push(0);
+        }
+        pintat.push(linea);
+    }       
+}
+
+function initTaulell()
+{
+    for (let i = 0; i < taulellyMAX; i++) {
+        var linea = [];
+        linea.push('Wb',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'Bk');
+        for (let j = 0; j < taulellxMAX; j++) {
+            //linea.push([ 0, 0, 0, … ]);
+        }
+        taulell.push(linea);
+    }
+}
+
+function initSelect()
+{
+    for (let i = 0; i < taulellyMAX; i++) {
+        var linea = [];
+        for (let j = 0; j < taulellxMAX; j++) {
+            linea.push(0);
+        }
+        select.push(linea);
+    }   
+}
 
 function initDiag() {
     

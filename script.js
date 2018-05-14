@@ -8,22 +8,13 @@ let lastX, lastY;
 
 let colorPlayer1 = "#00BFFF";
 let colorPlayer2 = "#FFAD00";
-const taulellyMAX = 4;
-const taulellxMAX = 4;
+const taulellyMAX = 24;
+const taulellxMAX = 24;
 
-window.onload = function (event) { rellenar() };
-let taulell = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-];
-let pint = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-];
+window.onload = function (event) { rellenar()};
+window.onload = function (event) { createTable()}
+let taulell = [];
+let pint = [];
 socket.onmessage = function (event) {
     mess = JSON.parse(event.data)
 
@@ -49,8 +40,31 @@ function send(idy, idx) {
     }
 }*/
 
-
+function createTable()
+{
+    var body = document.getElementsByTagName('body')[0];
+    body.setAttribute("class", "container");
+    var tbl = document.createElement('table');
+    tbl.style.width = '100%';
+    tbl.setAttribute('border', '1');
+    
+    for (var i = 0; i < 24; i++) {
+        var tr = document.createElement('tr');
+        for (var j = 0; j < 24; j++) {
+                var td = document.createElement('td');
+                td.setAttribute('id', 'pos['+i+']['+j+']');
+                td.setAttribute('onclick', 'send('+i+','+j+')');
+                tr.appendChild(td)
+            
+        }
+        tbl.appendChild(tr);
+    }
+    
+    body.appendChild(tbl);
+}
 function rellenar() {
+    
+
     for (let i = 0; i < taulellyMAX; i++) {
         for (let x = 0; x < taulellxMAX; x++) {
             switch(taulell[i][x]){
@@ -68,15 +82,17 @@ function rellenar() {
                 case 'Bh' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('img/Bh.png')";break;
                 case 'Wh' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('img/Wh.png')";break;
             }
+
             if (taulell[i][x] == '0') document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";
-            if(pint[i][x]==1)
+            
+            /*if(pint[i][x]==1)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
             } 
             if(pint[i][x]==2)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer2;
-            } 
+            } */
         }
     }
 }
