@@ -193,6 +193,7 @@ function initDiag(){
             let x=j;
             let y=i;
             var pos = [];
+            var linea = [];
             while(x<taulellxMAX && y<taulellyMAX)//Bottom Right
             {
                 pos.push(y++ +"."+ x++);
@@ -219,10 +220,11 @@ function initDiag(){
             }
 
             console.log("Pos: "+pos)
-            diag.push(pos);
-            console.log("Fuera While");
-            console.log(diag);
+            linea.push(pos);
+            //console.log("Fuera While");
+            //console.log(diag);
         }
+        diag.push(linea)
     }
 
     
