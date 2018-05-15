@@ -5,14 +5,6 @@ socket.onopen = function () {
 };
 
 let lastX, lastY;
-
-let colorPlayer1 = "#00BFFF";
-let colorPlayer2 = "#FFAD00";
-const taulellyMAX = 24;
-const taulellxMAX = 24;
-
-window.onload = function (event) { rellenar()};
-window.onload = function (event) { createTable()}
 let taulell = [];
 let pint = [];
 socket.onmessage = function (event) {
