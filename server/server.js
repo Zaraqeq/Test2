@@ -7,12 +7,7 @@ var WebSocket = require('ws'),
 var turn = true;
 var taulell = [];
 
-var select = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-];
+var select = [];
 
 let pintat = [];
 
@@ -61,6 +56,9 @@ server.on('connection', function connection(ws) {
                         moureRect(idx, idy, "Wr");
                     } else if (taulell[lastY][lastX].endsWith("b")) {
                         moureDiag(idx,idy,"Wb");
+                    }else if (taulell[lastY][lastX].endsWith("q")) {
+                        moureDiag(idx,idy,"Wq");
+                        moureRect(idx, idy, "Wq");
                     }
                 } else if (taulell[lastY][lastX].startsWith("B") && color == 2) {
                     if (taulell[lastY][lastX].endsWith("r")) {
@@ -68,7 +66,7 @@ server.on('connection', function connection(ws) {
                     }
                 }
 
-                console.log("Nou: " + taulell);
+                //console.log("Nou: " + taulell);
                 vaciar();
                 //console.log('Selected: '+select);
                 //rellenar();
@@ -93,10 +91,12 @@ server.on('connection', function connection(ws) {
                 //console.log("Lenght: "+diag[lastY][lastX].length+" I: "+i);
                 while(trobat==false && i<diag[lastY][lastX].length)
                 {
+                    var str = diag[lastY][lastX][i];
+                    let num = str.split(".");
                     
                     //console.log(diag[lastY][lastX][i].charAt(0) + diag[lastY][lastX][i].charAt(2));
-                    if(diag[lastY][lastX][i].charAt(0)==idy && diag[lastY][lastX][i].charAt(2)==idx) trobat=true;
-                    console.log(i);
+                    if(num[0]==idy && num[1]==idx) trobat=true;
+                    console.log("Num0: "+num[0]+" Num1: "+num[1]);
                     i++;
                 }
 
@@ -104,10 +104,10 @@ server.on('connection', function connection(ws) {
                 {
                     if(lastX!=idx && lastY!=idy)
                     {
-                        console.log(taulell);
-                        console.log("IDY: "+idy+" IDX: "+idx+" Piece: "+piece+" LastY: "+lastY+" LastX: "+lastX);
+                        //console.log(taulell);
+                        //console.log("IDY: "+idy+" IDX: "+idx+" Piece: "+piece+" LastY: "+lastY+" LastX: "+lastX);
                         taulell[idy][idx]=piece; 
-                        console.log(taulell);
+                        //console.log(taulell);
                         taulell[lastY][lastX] = 0;
                         turn = !turn;
                     }
@@ -132,7 +132,7 @@ server.on('connection', function connection(ws) {
                     taulell[idy][idx] = piece;
                     paintH(lastX, idx, idy);
                     paintV(lastY, idy, idx);
-                    console.log("Taula pintada: " + pintat);
+                    //console.log("Taula pintada: " + pintat);
                     taulell[lastY][lastX] = 0;
                     turn = !turn;
                 }
@@ -140,12 +140,12 @@ server.on('connection', function connection(ws) {
 
             function paintH(last, cur, fix) {
                 if (last < cur && last != cur) {
-                    console.log(last, cur);
+                    //console.log(last, cur);
                     for (last; last <= cur; last++) {
                         pintat[fix][last] = color;
-                        console.log("B1 Last X: " + last + " Curr X: " + cur);
+                        //console.log("B1 Last X: " + last + " Curr X: " + cur);
                     }
-                    console.log(last, cur);
+                    //console.log(last, cur);
                     last = cur;
                 }
 
@@ -153,7 +153,7 @@ server.on('connection', function connection(ws) {
 
                     for (last; last >= cur; last--) {
                         pintat[fix][last] = color;
-                        console.log("B2 Last X: " + last + " Curr X: " + cur);
+                        //console.log("B2 Last X: " + last + " Curr X: " + cur);
                     }
                     last = cur;
                 }
@@ -167,7 +167,7 @@ server.on('connection', function connection(ws) {
                     if (last < cur) {
                         for (last; last <= cur; last++) {
                             pintat[last][fix] = color;
-                            console.log("B1 Last Y: " + last + " CurrY: " + cur);
+                            //console.log("B1 Last Y: " + last + " CurrY: " + cur);
                         }
                         last = cur;
                     }
@@ -175,7 +175,7 @@ server.on('connection', function connection(ws) {
                     if (last > cur) {
                         for (last; last >= cur; last--) {
                             pintat[last][fix] = color;
-                            console.log("B2 LastY: " + last + " CurrY: " + cur);
+                            //console.log("B2 LastY: " + last + " CurrY: " + cur);
                         }
                         last = cur;
                     }
@@ -204,7 +204,7 @@ function initTaulell()
 {
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
-        linea.push('Wb',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'Bk');
+        linea.push('Wb',0,0,0,0,0,0,0,0,0,0,'Wq',0,0,0,0,0,0,0,0,0,0,0,'Br');
         for (let j = 0; j < taulellxMAX; j++) {
             //linea.push([ 0, 0, 0, … ]);
         }

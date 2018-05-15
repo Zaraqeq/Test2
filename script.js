@@ -85,14 +85,14 @@ function rellenar() {
 
             if (taulell[i][x] == '0') document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";
             
-            /*if(pint[i][x]==1)
+            if(pint[i][x]==1)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
             } 
             if(pint[i][x]==2)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer2;
-            } */
+            } 
         }
     }
 }
