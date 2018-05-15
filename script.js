@@ -5,6 +5,14 @@ socket.onopen = function () {
 };
 
 let lastX, lastY;
+
+let colorPlayer1 = "#00BFFF";
+let colorPlayer2 = "#FFAD00";
+const taulellyMAX = 24;
+const taulellxMAX = 24;
+
+window.onload = function (event) { rellenar()};
+window.onload = function (event) { createTable()}
 let taulell = [];
 let pint = [];
 socket.onmessage = function (event) {
@@ -45,7 +53,7 @@ function createTable()
         for (var j = 0; j < 24; j++) {
                 var td = document.createElement('td');
                 td.setAttribute('id', 'pos['+i+']['+j+']');
-                td.setAttribute('onclick', 'send('+i+','+j+')');
+                td.setAttribute('onclick', 'send('+i+','+j+'), select('+i+','+j+')');
                 tr.appendChild(td)
             
         }
@@ -53,6 +61,11 @@ function createTable()
     }
     
     body.appendChild(tbl);
+}
+
+function select(idy, idx)
+{
+    document.getElementById('pos[' + idy + '][' + idx + ']').style.border="2px solid red";
 }
 function rellenar() {
     
@@ -76,7 +89,7 @@ function rellenar() {
             }
 
             if (taulell[i][x] == '0') document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";
-            
+            sleep(2000);
             if(pint[i][x]==1)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
@@ -88,6 +101,10 @@ function rellenar() {
         }
     }
 }
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
 
 
