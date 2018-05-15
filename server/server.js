@@ -88,6 +88,7 @@ server.on('connection', function connection(ws) {
             function moureDiag(idx, idy, piece){
                 let i=0;
                 var trobat = false;
+                let color;
                 //console.log("Lenght: "+diag[lastY][lastX].length+" I: "+i);
                 while(trobat==false && i<diag[lastY][lastX].length)
                 {
@@ -108,6 +109,9 @@ server.on('connection', function connection(ws) {
                         //console.log("IDY: "+idy+" IDX: "+idx+" Piece: "+piece+" LastY: "+lastY+" LastX: "+lastX);
                         taulell[idy][idx]=piece; 
                         //console.log(taulell);
+                        if(piece.startsWith("W")) color = 1;
+                        else color = 2;
+                        paintDiag(idx,idy,color);
                         taulell[lastY][lastX] = 0;
                         turn = !turn;
                     }
@@ -184,11 +188,51 @@ server.on('connection', function connection(ws) {
                 let enviar = ["Pintar", pintat];
                 client.send(JSON.stringify(enviar));
             }
-            function paintD(last, cur) {
+            
+            function paintDiag(idx, idy, color) {
+                let x = lastX;
+                let y = lastY;
+
+                while (x <= idx && y <= idy)//Bottom Right
+                {
+                    pintat[y][x] = color
+                    x++; y++;
+                }
+                
+                x = lastX;
+                y = lastY;
+
+                //console.log(pintat);
+                while (x >= idx && y < idy)//Bottom Left
+                {
+                    pintat[y][x] = color
+                    x--; y++;
+                }
+
+                x = lastX;
+                y = lastY;
+                while (x <= idx && y >= idy)//Top Right
+                {
+                    pintat[y][x] = color
+                    x++; y--;
+                }
+
+                x = lastX;
+                y = lastY;
+
+                while (x >= idx && y >= idy)//Top left
+                {
+                    pintat[y][x] = color
+                    x--; y--;
+                }
+                let enviar = ["Pintar", pintat];
+                ws.send(JSON.stringify(enviar));
             }
         });
     });
 });
+
+
 function initPint()
 {
     for (let i = 0; i < taulellyMAX; i++) {
