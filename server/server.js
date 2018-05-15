@@ -6,17 +6,16 @@ var WebSocket = require('ws'),
     });
 var turn = true;
 var taulell = [];
-
 var select = [];
-
 let pintat = [];
-
 let diag = [];
 
 let lastX = 0, lastY = 0;
 const taulellyMAX = 24;
 const taulellxMAX = 24;
+let enemic=0;
 var turn = true;
+var click = false;
 let color;
 console.log((new Date()) + "WebSocket Server is listening on port 3000");
 
@@ -39,16 +38,34 @@ server.on('connection', function connection(ws) {
             let pos = JSON.parse(data);
             let idy = pos[0];
             let idx = pos[1];
-
-            if (taulell[idy][idx] != 0) {
+            
+            
+            if (taulell[idy][idx] != 0 && click==false) {
                 vaciar();
+                console.log("He entrat");
                 select[idy][idx] = 1;
-                //console.log(select);
+                let pesa = taulell[lastY][lastX];
+                
+                console.log(click);
+                if(pesa != 0){
+                    if(pesa.startsWith("W")) 
+                    {
+                        enemic="B";
+                    }else if(pesa.startsWith("B"))
+                    {
+                        enemic="W";
+                    }
+                }
+                //console.log("Enemic: "+enemic+" Pesa: "+pesa);
                 lastX = idx;
                 lastY = idy;
-            } else if (taulell[idy][idx] == 0 && select[lastY][lastX] == 1) { //color 1 = yellow
+
+                click = true
+            } else if ((taulell[idy][idx]==0 || taulell[idy][idx].startsWith(enemic)) && select[lastY][lastX] == 1) { //color 1 = yellow
+                console.log(taulell[idy][idx]); 
                 //console.log("Anterior: "+taulell);
-                //console.log('Selected: '+select);
+                console.log("Enemic: "+enemic);
+                console.log("He entrat 2");
                 if (turn) color = 1;
                 else color = 2;
                 if (taulell[lastY][lastX].startsWith("W") && color == 1) {
@@ -56,10 +73,10 @@ server.on('connection', function connection(ws) {
                         moureRect(idx, idy, "Wr");
                     } else if (taulell[lastY][lastX].endsWith("b")) {
                         moureDiag(idx,idy,"Wb");
-                    }else if (taulell[lastY][lastX].endsWith("q")) {
+                    } else if (taulell[lastY][lastX].endsWith("q")) {
                         moureDiag(idx,idy,"Wq");
                         moureRect(idx, idy, "Wq");
-                    }
+                    } 
                 } else if (taulell[lastY][lastX].startsWith("B") && color == 2) {
                     if (taulell[lastY][lastX].endsWith("r")) {
                         moureRect(idx, idy, "Br");
@@ -70,6 +87,7 @@ server.on('connection', function connection(ws) {
                 vaciar();
                 //console.log('Selected: '+select);
                 //rellenar();
+                click = false
             }
             let table = ["Taulell", taulell];
             //console.log("JSON= " + myJsonString);
@@ -82,9 +100,7 @@ server.on('connection', function connection(ws) {
                     }
                 }
             }
-
-
-            
+           
             function moureDiag(idx, idy, piece){
                 let i=0;
                 var trobat = false;
@@ -97,7 +113,7 @@ server.on('connection', function connection(ws) {
                     
                     //console.log(diag[lastY][lastX][i].charAt(0) + diag[lastY][lastX][i].charAt(2));
                     if(num[0]==idy && num[1]==idx) trobat=true;
-                    console.log("Num0: "+num[0]+" Num1: "+num[1]);
+                    //console.log("Num0: "+num[0]+" Num1: "+num[1]);
                     i++;
                 }
 
@@ -118,19 +134,7 @@ server.on('connection', function connection(ws) {
                     
                 } 
             }
-            //TODO: BUCLES COMPROVACIO DIAGONAL
-           /* function paintDiagBR(idx, idy){
-                for(lastX; lastX>=idx; lastX++){
-                        for(lastY; idy>=lastY; lastY++){
-                            pintar[lastY][lastX] = color;
-                    }
-                }
-                lastX = idx;
-                lastY = idy;
-                let enviar = ["Pintar", pintat];
-                ws.send(JSON.stringify(enviar));
-            }*/
-
+            
             function moureRect(idx, idy, piece) {
                 if (idx == lastX || idy == lastY) {
                     taulell[idy][idx] = piece;
@@ -277,13 +281,14 @@ function initDiag() {
             let x = j;
             let y = i;
             var pos = [];
-            
+
             while (x < taulellxMAX && y < taulellyMAX)//Bottom Right
             {
                 pos.push(y++ + "." + x++);
             }
             x = j;
             y = i;
+
             while (x >= 0 && y < taulellyMAX)//Bottom Left
             {
                 pos.push(y++ + "." + x--);
