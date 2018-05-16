@@ -25,6 +25,8 @@ server.on('connection', function connection(ws) {
     ws.send(JSON.stringify(table));
     let enviar = ["Pintar", pintat];
     ws.send(JSON.stringify(enviar));
+    let turnMes = ["Turn", turn];
+    ws.send(JSON.stringify(enviar));
     initDiag();
     initTaulell();
     initPint();
@@ -44,18 +46,18 @@ server.on('connection', function connection(ws) {
                 vaciar();
                 console.log("He entrat");
                 select[idy][idx] = 1;
-                let pesa = taulell[lastY][lastX];
+                //let pesa = taulell[lastY][lastX];
                 
                 console.log(click);
-                if(pesa != 0){
-                    if(pesa.startsWith("W")) 
+                
+                    if(turn) 
                     {
                         enemic="B";
-                    }else if(pesa.startsWith("B"))
+                    }else if(!turn)
                     {
                         enemic="W";
                     }
-                }
+                
                 //console.log("Enemic: "+enemic+" Pesa: "+pesa);
                 lastX = idx;
                 lastY = idy;
@@ -133,6 +135,8 @@ server.on('connection', function connection(ws) {
                     }
                     
                 } 
+                let enviar = ["Turn", turn];
+                client.send(JSON.stringify(enviar));
             }
             
             function moureRect(idx, idy, piece) {
@@ -144,6 +148,9 @@ server.on('connection', function connection(ws) {
                     taulell[lastY][lastX] = 0;
                     turn = !turn;
                 }
+
+                let enviar = ["Turn", turn];
+                client.send(JSON.stringify(enviar));
             }
 
             function paintH(last, cur, fix) {
@@ -167,7 +174,7 @@ server.on('connection', function connection(ws) {
                 }
 
                 let enviar = ["Pintar", pintat];
-                ws.send(JSON.stringify(enviar));
+                client.send(JSON.stringify(enviar));
             }
 
             function paintV(last, cur, fix) {

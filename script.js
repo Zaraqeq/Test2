@@ -17,11 +17,23 @@ let taulell = [];
 let pint = [];
 socket.onmessage = function (event) {
     mess = JSON.parse(event.data)
-
+    let turn;
     if (mess[0] == "Taulell") {
         taulell = mess[1];
     } else if (mess[0] == "Pintar") {
         pint = mess[1];
+    }else if(mess[0]=="Turn")
+    {
+        if(mess[1]==true)
+        {
+            turn = "Blanc";
+        }else if(mess[1]==false)
+        {
+            turn="Negre";
+        }
+
+        document.getElementById("Turn").innerHTML = turn;
+        
     }
 
     rellenar();
@@ -63,10 +75,6 @@ function createTable()
     body.appendChild(tbl);
 }
 
-function select(idy, idx)
-{
-    document.getElementById('pos[' + idy + '][' + idx + ']').style.border="2px solid red";
-}
 function rellenar() {
     
 
