@@ -237,7 +237,7 @@ server.on('connection', function connection(ws) {
                     x--; y--;
                 }
                 let enviar = ["Pintar", pintat];
-                ws.send(JSON.stringify(enviar));
+                client.send(JSON.stringify(enviar));
             }
         });
     });
