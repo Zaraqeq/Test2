@@ -44,7 +44,7 @@ server.on('connection', function connection(ws) {
             
             if (taulell[idy][idx] != 0 && click==false) {
                 vaciar();
-                console.log("He entrat");
+                //console.log("He entrat");
                 select[idy][idx] = 1;
                 //let pesa = taulell[lastY][lastX];
                 
@@ -66,8 +66,8 @@ server.on('connection', function connection(ws) {
             } else if ((taulell[idy][idx]==0 || taulell[idy][idx].startsWith(enemic)) && select[lastY][lastX] == 1) { //color 1 = yellow
                 console.log(taulell[idy][idx]); 
                 //console.log("Anterior: "+taulell);
-                console.log("Enemic: "+enemic);
-                console.log("He entrat 2");
+                //console.log("Enemic: "+enemic);
+                //onsole.log("He entrat 2");
                 if (turn) color = 1;
                 else color = 2;
                 if (taulell[lastY][lastX].startsWith("W") && color == 1) {
@@ -78,7 +78,17 @@ server.on('connection', function connection(ws) {
                     } else if (taulell[lastY][lastX].endsWith("q")) {
                         moureDiag(idx,idy,"Wq");
                         moureRect(idx, idy, "Wq");
-                    } 
+                    } else if (taulell[lastY][lastX].endsWith("p")){
+                        if(taulell[idy][idx]!=0 &&  taulell[idy][idx].startsWith(enemic)){ //Condicio per a matar
+                            if(moureCurtDiag(idx, idy)){
+                                moureDiag(idx,idy, "Wp");
+                            }
+                        }else{
+                            if(moureCurt(idx, idy, 2)){
+                                moureRect(idx, idy, "Wp");
+                            }
+                        }
+                    }
                 } else if (taulell[lastY][lastX].startsWith("B") && color == 2) {
                     if (taulell[lastY][lastX].endsWith("r")) {
                         moureRect(idx, idy, "Br");
@@ -102,7 +112,30 @@ server.on('connection', function connection(ws) {
                     }
                 }
             }
-           
+            
+            function moureCurtDiag(idx, idy){
+                if((idx == lastX+2 && idy == lastY+2) || (idx == lastX+1 && idy == lastY+1)){
+                    return true;
+                }else if((idx == lastX-2 && idy == lastY+2) || (idx == lastX-1 && idy <= lastY+1)){
+                    return true;
+                }else if((idx == lastX+2 && idy == lastY-2) || (idx == lastX+1 && idy == lastY-1)){
+                    return true;
+                }else if((idx == lastX+2 && idy == lastY-2) || (idx == lastX+1 && idy == lastY-1)){
+                    return true;
+                }else return false;
+            }
+
+            function moureCurt(idx, idy, limit){
+                if((idx <= lastX+limit && idx >= lastX-limit) && lastY == idy){ //Horitzontal
+                    //console.log("Horitzontal"+"LastX: "+lastX+" X: "+idx);
+                    return true;
+                }else if((idy <= lastY+limit && idy >= lastY-limit) && lastX == idx){ //Vertical
+                    //console.log("Vertical"+"LastY: "+lastY+" Y: "+idy);
+                    return true;
+                }else return false;
+               
+            }
+
             function moureDiag(idx, idy, piece){
                 let i=0;
                 var trobat = false;
@@ -259,7 +292,7 @@ function initTaulell()
 {
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
-        linea.push('Wb',0,0,0,0,0,0,0,0,0,0,'Wq',0,0,0,0,0,0,0,0,0,0,0,'Br');
+        linea.push('Wb',0,0,0,0,0,0,0,0,0,0,'Wq',0,0,0,0,0,'Wp',0,0,0,0,0,'Br');
         for (let j = 0; j < taulellxMAX; j++) {
             //linea.push([ 0, 0, 0, … ]);
         }

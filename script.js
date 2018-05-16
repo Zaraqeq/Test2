@@ -33,8 +33,8 @@ socket.onmessage = function (event) {
         }
 
         document.getElementById("Turn").innerHTML = turn;
-        
-    }
+
+     }
 
     rellenar();
 };
@@ -65,7 +65,7 @@ function createTable()
         for (var j = 0; j < 24; j++) {
                 var td = document.createElement('td');
                 td.setAttribute('id', 'pos['+i+']['+j+']');
-                td.setAttribute('onclick', 'send('+i+','+j+'), select('+i+','+j+')');
+                td.setAttribute('onclick', 'send('+i+','+j+')');
                 tr.appendChild(td)
             
         }
