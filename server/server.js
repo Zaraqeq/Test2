@@ -50,8 +50,8 @@ server.on('connection', function connection(ws) {
                 select[idy][idx] = 1;
                 //let pesa = taulell[lastY][lastX];
 
-                taulell[idy][idx].movRect();
-
+                //taulell[idy][idx].movRect();
+                //console.log(taulell[idy][idx].movRect());
                 if (turn) {
                     enemic = "B";
                 } else if (!turn) {
@@ -63,26 +63,31 @@ server.on('connection', function connection(ws) {
                 lastY = idy;
 
                 click = true
-            } else if ((taulell[idy][idx] == 0 || taulell[idy][idx].startsWith(enemic)) && select[lastY][lastX] == 1) { //color 1 = yellow
+            } else if ((taulell[idy][idx] == 0 /*|| taulell[idy][idx].startsWith(enemic)*/) && select[lastY][lastX] == 1) { //color 1 = yellow
                 //console.log(taulell[idy][idx]);
                 //console.log("Anterior: "+taulell);
                 //console.log("Enemic: " + enemic);
                 //console.log("He entrat 2");
                 if (turn) color = 1;
                 else color = 2;
-                if (taulell[lastY][lastX].startsWith("W") && color == 1) {
-                    if (taulell[lastY][lastX].endsWith("r")) {
-                        moureRect(idx, idy, "Wr");
+                
+                if (taulell[lastY][lastX].col()=="W") {
+                    if (taulell[lastY][lastX].pieceType()=="r" && taulell[lastY][lastX].movRect(idx, idy)) {
+                        
+                        taulell[idy][idx] = taulell[lastY][lastX];
+                        taulell[lastY][lastX] = 0;
+                        //moureRect(idx, idy, "Wr");
                     } else if (taulell[lastY][lastX].endsWith("b")) {
                         moureDiag(idx, idy, "Wb");
                     } else if (taulell[lastY][lastX].endsWith("q")) {
                         moureDiag(idx, idy, "Wq");
                         moureRect(idx, idy, "Wq");
                     }
-                } else if (taulell[lastY][lastX].startsWith("B") && color == 2) {
-                    if (taulell[lastY][lastX].endsWith("r")) {
+                } else if (taulell[lastY][lastX].col()=="B") {
+                    if (taulell[lastY][lastX].pieceType()=="r" && taulell[lastY][lastX].movRect(idx, idy)) {
+
                         
-                        roo.movRect(idx, idy, taulell, "Br", );
+
                         //moureRect(idx, idy, "Br");
                     }else if (taulell[lastY][lastX].endsWith("b")) {
                         moureDiag(idx, idy, "Bb");
@@ -99,6 +104,7 @@ server.on('connection', function connection(ws) {
             }
 
             //click=false;
+            console.log(taulell);
             let table = ["Taulell", taulell];
             //console.log("JSON= " + myJsonString);
             client.send(JSON.stringify(table));
@@ -260,9 +266,10 @@ function initPint() {
 }
 
 function initTaulell() {
+    var scope = {};
     for (let i = 0; i < taulellyMAX; i++) {
-        var linea = [];
-        linea.push('Wb', roo[i] = new rook(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wq', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Br');
+        var linea = []; 
+        linea.push('Wb', scope['W'+i+'r'] = new rook(i, 2, "W"), 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wq', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, scope['B'+i+'r'] = new rook(i, 22, "B"), 'Br');
         for (let j = 0; j < taulellxMAX; j++) {
             //linea.push([ 0, 0, 0, … ]);
             
