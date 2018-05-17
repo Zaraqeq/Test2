@@ -19,6 +19,7 @@ let pint = [];
 socket.onmessage = function (event) {
     mess = JSON.parse(event.data)
     let turn;
+    console.log("-->"+mess);
     if (mess[0] == "Taulell") {
         console.log("Taulell");
         taulell = mess[1];

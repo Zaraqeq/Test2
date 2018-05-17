@@ -198,7 +198,7 @@ server.on('connection', function connection(ws) {
                     }
                     last = cur;
                 }
-
+                console.log("Pintar");
                 let enviar = ["Pintar", pintat];
                 client.send(JSON.stringify(enviar));
             }
