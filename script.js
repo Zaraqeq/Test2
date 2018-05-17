@@ -42,6 +42,11 @@ socket.onmessage = function (event) {
         
     }
 
+    if(mess[0]=="Error")
+    {
+        alert(mess[1]);
+    }
+
     rellenar();
 };
 
@@ -86,7 +91,9 @@ function rellenar() {
 
     for (let i = 0; i < taulellyMAX; i++) {
         for (let x = 0; x < taulellxMAX; x++) {
-            switch(taulell[i][x]){
+            var pesa = taulell[i][x].color+taulell[i][x].pesa;
+            switch(pesa){
+                
                 case '0' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";break;
                 case 'Br' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('img/Br.png')";break;
                 case 'Wr' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('img/Wr.png')";break;

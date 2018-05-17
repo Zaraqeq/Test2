@@ -1,12 +1,13 @@
 class Torre{
 
-
-    constructor(idy, idx, color)
+    constructor(idy, idx, color, pesa)
     {
         this.idx=idx; 
         this.idy=idy; 
         this.color = color;
+        this.pesa = pesa;   
     }
+    
 
     movRect(newx, newy)
     {
@@ -26,7 +27,7 @@ class Torre{
 
     pieceType()
     {
-        return "r";
+        return this.pesa;
     }
 
 } 

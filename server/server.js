@@ -1,5 +1,7 @@
 //import { SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER } from 'constants';
 const rook = require('./classes/rook.js');
+const bishop = require('./classes/bishop.js');
+const queen = require('./classes/queen.js');
 var WebSocket = require('ws'),
     server = new WebSocket.Server({
         port: 3000,
@@ -38,11 +40,11 @@ server.on('connection', function connection(ws) {
         let pos = JSON.parse(data);
         let idy = pos[0];
         let idx = pos[1];
-        
-        
+
+
         server.clients.forEach(function each(client) {
             console.log(click);
-            
+
             //click=false;
             if (taulell[idy][idx] != 0 && click == false) {
                 vaciar();
@@ -70,37 +72,43 @@ server.on('connection', function connection(ws) {
                 //console.log("He entrat 2");
                 if (turn) color = 1;
                 else color = 2;
-                
-                if (taulell[lastY][lastX].col()=="W") {
-                    if (taulell[lastY][lastX].pieceType()=="r" && taulell[lastY][lastX].movRect(idx, idy)) {
-                        
+
+                if (taulell[lastY][lastX].col() == "W") {
+                    if (taulell[lastY][lastX].pieceType() == "r" && taulell[lastY][lastX].movRect(idx, idy)) {
+
                         taulell[idy][idx] = taulell[lastY][lastX];
                         taulell[lastY][lastX] = 0;
                         //moureRect(idx, idy, "Wr");
-                    } else if (taulell[lastY][lastX].endsWith("b")) {
-                        moureDiag(idx, idy, "Wb");
-                    } else if (taulell[lastY][lastX].endsWith("q")) {
-                        moureDiag(idx, idy, "Wq");
-                        moureRect(idx, idy, "Wq");
+                    } else if (taulell[lastY][lastX].pieceType() == "b" && taulell[lastY][lastX].movDiag(idx, idy, diag)) {
+                        taulell[idy][idx] = taulell[lastY][lastX];
+                        taulell[lastY][lastX] = 0;
+                        //moureDiag(idx, idy, "Wb");
+                    } else if (taulell[lastY][lastX].pieceType() == "q" && (taulell[lastY][lastX].movDiag(idx, idy, diag) || taulell[lastY][lastX].movRect(idx, idy))) {
+                        taulell[idy][idx] = taulell[lastY][lastX];
+                        taulell[lastY][lastX] = 0;
+                    } else {
+                        let error = ["Error", "Moviment Invalid"];
+                        client.send(JSON.stringify(error));
                     }
-                } else if (taulell[lastY][lastX].col()=="B") {
-                    if (taulell[lastY][lastX].pieceType()=="r" && taulell[lastY][lastX].movRect(idx, idy)) {
+                } else if (taulell[lastY][lastX].col() == "B") {
+                    if (taulell[lastY][lastX].pieceType() == "r" && taulell[lastY][lastX].movRect(idx, idy)) {
+                        taulell[idy][idx] = taulell[lastY][lastX];
+                        taulell[lastY][lastX] = 0;
 
-                        
 
                         //moureRect(idx, idy, "Br");
-                    }else if (taulell[lastY][lastX].endsWith("b")) {
+                    } /*else if (taulell[lastY][lastX].endsWith("b")) {
                         moureDiag(idx, idy, "Bb");
                     } else if (taulell[lastY][lastX].endsWith("q")) {
                         moureDiag(idx, idy, "Bq");
                         moureRect(idx, idy, "Bq");
-                    }
+                    }*/
                 }
 
                 //console.log("Nou: " + taulell);
                 vaciar();
                 //console.log('Selected: '+select);
-                click=false;
+                click = false;
             }
 
             //click=false;
@@ -149,7 +157,7 @@ server.on('connection', function connection(ws) {
                 let enviar = ["Turn", turn];
                 client.send(JSON.stringify(enviar));
             }
-           
+
             function moureRect(idx, idy, piece) {
                 if (idx == lastX || idy == lastY) {
                     taulell[idy][idx] = piece;
@@ -268,11 +276,11 @@ function initPint() {
 function initTaulell() {
     var scope = {};
     for (let i = 0; i < taulellyMAX; i++) {
-        var linea = []; 
-        linea.push('Wb', scope['W'+i+'r'] = new rook(i, 2, "W"), 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wq', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, scope['B'+i+'r'] = new rook(i, 22, "B"), 'Br');
+        var linea = [];
+        linea.push(scope['W' + i + 'q'] = new queen(i, 1, "W", "q"), scope['W' + i + 'r'] = new rook(i, 1, "W", "r"), scope['W' + i + 'b'] = new bishop(i, 2, "W", "b"), 0, 0, 0, 0, 0, 0, 0, 0, 'Wq', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, scope['B' + i + 'r'] = new rook(i, 22, "B", "r"), 'Br');
         for (let j = 0; j < taulellxMAX; j++) {
             //linea.push([ 0, 0, 0, … ]);
-            
+
         }
         taulell.push(linea);
     }
@@ -320,6 +328,7 @@ function initDiag() {
 
             x = j;
             y = i;
+
             while (x >= 0 && y >= 0)//Top left
             {
                 pos.push(y-- + "." + x--);
