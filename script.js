@@ -44,6 +44,7 @@ socket.onmessage = function (event) {
 
     if(mess[0]=="Error")
     {
+        console.log("Error");
         alert(mess[1]);
     }
 

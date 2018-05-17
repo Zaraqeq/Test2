@@ -44,9 +44,8 @@ server.on('connection', function connection(ws) {
 
         server.clients.forEach(function each(client) {
             console.log(click);
-
             //click=false;
-            if (taulell[idy][idx] != 0 && click == false) {
+            if (taulell[idy][idx] != 0 && select[lastY][lastX]==0) {
                 vaciar();
                 //console.log("He entrat");
                 select[idy][idx] = 1;
@@ -65,7 +64,7 @@ server.on('connection', function connection(ws) {
                 lastY = idy;
 
                 click = true
-            } else if ((taulell[idy][idx] == 0 /*|| taulell[idy][idx].startsWith(enemic)*/) && select[lastY][lastX] == 1) { //color 1 = yellow
+            } else if ((taulell[idy][idx] == 0 || taulell[idy][idx].col()==enemic) && select[lastY][lastX] == 1) { //color 1 = yellow
                 //console.log(taulell[idy][idx]);
                 //console.log("Anterior: "+taulell);
                 //console.log("Enemic: " + enemic);
@@ -78,14 +77,21 @@ server.on('connection', function connection(ws) {
 
                         taulell[idy][idx] = taulell[lastY][lastX];
                         taulell[lastY][lastX] = 0;
+                        paintH(lastX, idx, idy);
+                        paintV(lastY, idy, idx);
                         //moureRect(idx, idy, "Wr");
                     } else if (taulell[lastY][lastX].pieceType() == "b" && taulell[lastY][lastX].movDiag(idx, idy, diag)) {
                         taulell[idy][idx] = taulell[lastY][lastX];
                         taulell[lastY][lastX] = 0;
                         //moureDiag(idx, idy, "Wb");
+                        paintDiag(idx, idy, color);
                     } else if (taulell[lastY][lastX].pieceType() == "q" && (taulell[lastY][lastX].movDiag(idx, idy, diag) || taulell[lastY][lastX].movRect(idx, idy))) {
                         taulell[idy][idx] = taulell[lastY][lastX];
                         taulell[lastY][lastX] = 0;
+                        //paintH(lastX, idx, idy);
+                        //paintV(lastY, idy, idx);
+                        paintDiag(idx, idy, color);
+
                     } else {
                         let error = ["Error", "Moviment Invalid"];
                         client.send(JSON.stringify(error));
@@ -108,7 +114,8 @@ server.on('connection', function connection(ws) {
                 //console.log("Nou: " + taulell);
                 vaciar();
                 //console.log('Selected: '+select);
-                click = false;
+                select[lastY][lastX]=0;
+            
             }
 
             //click=false;
@@ -125,7 +132,7 @@ server.on('connection', function connection(ws) {
                 }
             }
 
-            function moureDiag(idx, idy, piece) {
+            /*function moureDiag(idx, idy, piece) {
                 let i = 0;
                 var trobat = false;
                 let color;
@@ -170,7 +177,7 @@ server.on('connection', function connection(ws) {
 
                 let enviar = ["Turn", turn];
                 client.send(JSON.stringify(enviar));
-            }
+            }*/
 
             function paintH(last, cur, fix) {
                 if (last < cur && last != cur) {
