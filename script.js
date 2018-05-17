@@ -15,15 +15,21 @@ window.onload = function (event) { rellenar()};
 window.onload = function (event) { createTable()}
 let taulell = [];
 let pint = [];
+
 socket.onmessage = function (event) {
     mess = JSON.parse(event.data)
     let turn;
     if (mess[0] == "Taulell") {
+        console.log("Taulell");
         taulell = mess[1];
-    } else if (mess[0] == "Pintar") {
+    }
+    if (mess[0] == "Pintar") {
+        console.log("Pintar");
         pint = mess[1];
-    }else if(mess[0]=="Turn")
+    }
+    if(mess[0]=="Turn")
     {
+        console.log("Turn");
         if(mess[1]==true)
         {
             turn = "Blanc";
@@ -65,7 +71,7 @@ function createTable()
         for (var j = 0; j < 24; j++) {
                 var td = document.createElement('td');
                 td.setAttribute('id', 'pos['+i+']['+j+']');
-                td.setAttribute('onclick', 'send('+i+','+j+'), select('+i+','+j+')');
+                td.setAttribute('onclick', 'send('+i+','+j+')');
                 tr.appendChild(td)
             
         }

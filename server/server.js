@@ -1,5 +1,5 @@
 //import { SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER } from 'constants';
-
+const rook = require('./classes/rook.js');
 var WebSocket = require('ws'),
     server = new WebSocket.Server({
         port: 3000,
@@ -13,7 +13,7 @@ let diag = [];
 let lastX = 0, lastY = 0;
 const taulellyMAX = 24;
 const taulellxMAX = 24;
-let enemic=0;
+let enemic = 0;
 var turn = true;
 var click = false;
 let color;
@@ -35,62 +35,70 @@ server.on('connection', function connection(ws) {
     ws.on('message', function incoming(data) {
         // Broadcast to everyone else.
         //console.log("Rebut: " + data);
-
+        let pos = JSON.parse(data);
+        let idy = pos[0];
+        let idx = pos[1];
+        
+        
         server.clients.forEach(function each(client) {
-            let pos = JSON.parse(data);
-            let idy = pos[0];
-            let idx = pos[1];
+            console.log(click);
             
-            
-            if (taulell[idy][idx] != 0 && click==false) {
+            //click=false;
+            if (taulell[idy][idx] != 0 && click == false) {
                 vaciar();
-                console.log("He entrat");
+                //console.log("He entrat");
                 select[idy][idx] = 1;
                 //let pesa = taulell[lastY][lastX];
-                
-                console.log(click);
-                
-                    if(turn) 
-                    {
-                        enemic="B";
-                    }else if(!turn)
-                    {
-                        enemic="W";
-                    }
-                
+
+                taulell[idy][idx].movRect();
+
+                if (turn) {
+                    enemic = "B";
+                } else if (!turn) {
+                    enemic = "W";
+                }
+
                 //console.log("Enemic: "+enemic+" Pesa: "+pesa);
                 lastX = idx;
                 lastY = idy;
 
                 click = true
-            } else if ((taulell[idy][idx]==0 || taulell[idy][idx].startsWith(enemic)) && select[lastY][lastX] == 1) { //color 1 = yellow
-                console.log(taulell[idy][idx]); 
+            } else if ((taulell[idy][idx] == 0 || taulell[idy][idx].startsWith(enemic)) && select[lastY][lastX] == 1) { //color 1 = yellow
+                //console.log(taulell[idy][idx]);
                 //console.log("Anterior: "+taulell);
-                console.log("Enemic: "+enemic);
-                console.log("He entrat 2");
+                //console.log("Enemic: " + enemic);
+                //console.log("He entrat 2");
                 if (turn) color = 1;
                 else color = 2;
                 if (taulell[lastY][lastX].startsWith("W") && color == 1) {
                     if (taulell[lastY][lastX].endsWith("r")) {
                         moureRect(idx, idy, "Wr");
                     } else if (taulell[lastY][lastX].endsWith("b")) {
-                        moureDiag(idx,idy,"Wb");
+                        moureDiag(idx, idy, "Wb");
                     } else if (taulell[lastY][lastX].endsWith("q")) {
-                        moureDiag(idx,idy,"Wq");
+                        moureDiag(idx, idy, "Wq");
                         moureRect(idx, idy, "Wq");
-                    } 
+                    }
                 } else if (taulell[lastY][lastX].startsWith("B") && color == 2) {
                     if (taulell[lastY][lastX].endsWith("r")) {
-                        moureRect(idx, idy, "Br");
+                        
+                        roo.movRect(idx, idy, taulell, "Br", );
+                        //moureRect(idx, idy, "Br");
+                    }else if (taulell[lastY][lastX].endsWith("b")) {
+                        moureDiag(idx, idy, "Bb");
+                    } else if (taulell[lastY][lastX].endsWith("q")) {
+                        moureDiag(idx, idy, "Bq");
+                        moureRect(idx, idy, "Bq");
                     }
                 }
 
                 //console.log("Nou: " + taulell);
                 vaciar();
                 //console.log('Selected: '+select);
-                //rellenar();
-                click = false
+                click=false;
             }
+
+            //click=false;
             let table = ["Taulell", taulell];
             //console.log("JSON= " + myJsonString);
             client.send(JSON.stringify(table));
@@ -102,43 +110,40 @@ server.on('connection', function connection(ws) {
                     }
                 }
             }
-           
-            function moureDiag(idx, idy, piece){
-                let i=0;
+
+            function moureDiag(idx, idy, piece) {
+                let i = 0;
                 var trobat = false;
                 let color;
                 //console.log("Lenght: "+diag[lastY][lastX].length+" I: "+i);
-                while(trobat==false && i<diag[lastY][lastX].length)
-                {
+                while (trobat == false && i < diag[lastY][lastX].length) {
                     var str = diag[lastY][lastX][i];
                     let num = str.split(".");
-                    
+
                     //console.log(diag[lastY][lastX][i].charAt(0) + diag[lastY][lastX][i].charAt(2));
-                    if(num[0]==idy && num[1]==idx) trobat=true;
+                    if (num[0] == idy && num[1] == idx) trobat = true;
                     //console.log("Num0: "+num[0]+" Num1: "+num[1]);
                     i++;
                 }
 
-                if(trobat==true)
-                {
-                    if(lastX!=idx && lastY!=idy)
-                    {
+                if (trobat == true) {
+                    if (lastX != idx && lastY != idy) {
                         //console.log(taulell);
                         //console.log("IDY: "+idy+" IDX: "+idx+" Piece: "+piece+" LastY: "+lastY+" LastX: "+lastX);
-                        taulell[idy][idx]=piece; 
+                        taulell[idy][idx] = piece;
                         //console.log(taulell);
-                        if(piece.startsWith("W")) color = 1;
+                        if (piece.startsWith("W")) color = 1;
                         else color = 2;
-                        paintDiag(idx,idy,color);
+                        paintDiag(idx, idy, color);
                         taulell[lastY][lastX] = 0;
                         turn = !turn;
                     }
-                    
-                } 
+
+                }
                 let enviar = ["Turn", turn];
                 client.send(JSON.stringify(enviar));
             }
-            
+           
             function moureRect(idx, idy, piece) {
                 if (idx == lastX || idy == lastY) {
                     taulell[idy][idx] = piece;
@@ -199,7 +204,7 @@ server.on('connection', function connection(ws) {
                 let enviar = ["Pintar", pintat];
                 client.send(JSON.stringify(enviar));
             }
-            
+
             function paintDiag(idx, idy, color) {
                 let x = lastX;
                 let y = lastY;
@@ -209,7 +214,7 @@ server.on('connection', function connection(ws) {
                     pintat[y][x] = color
                     x++; y++;
                 }
-                
+
                 x = lastX;
                 y = lastY;
 
@@ -244,42 +249,40 @@ server.on('connection', function connection(ws) {
 });
 
 
-function initPint()
-{
+function initPint() {
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
         for (let j = 0; j < taulellxMAX; j++) {
             linea.push(0);
         }
         pintat.push(linea);
-    }       
+    }
 }
 
-function initTaulell()
-{
+function initTaulell() {
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
-        linea.push('Wb',0,0,0,0,0,0,0,0,0,0,'Wq',0,0,0,0,0,0,0,0,0,0,0,'Br');
+        linea.push('Wb', roo[i] = new rook(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wq', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Br');
         for (let j = 0; j < taulellxMAX; j++) {
             //linea.push([ 0, 0, 0, … ]);
+            
         }
         taulell.push(linea);
     }
 }
 
-function initSelect()
-{
+function initSelect() {
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
         for (let j = 0; j < taulellxMAX; j++) {
             linea.push(0);
         }
         select.push(linea);
-    }   
+    }
 }
 
 function initDiag() {
-    
+
     //TODO: change 2 por cada taulax o y max
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
