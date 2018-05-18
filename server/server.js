@@ -1,11 +1,18 @@
 //import { SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER } from 'constants';
-const rook = require('./classes/rook.js');
-const bishop = require('./classes/bishop.js');
-const queen = require('./classes/queen.js');
-var WebSocket = require('ws'),
-    server = new WebSocket.Server({
-        port: 3000,
-    });
+const rook = require(__dirname + '/classes/rook.js');
+const bishop = require(__dirname + '/classes/bishop.js');
+const queen = require(__dirname + '/classes/queen.js');
+const boar = require(__dirname + '/classes/board.js');
+
+var express = require('express');
+var app = express();
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
+app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public/img'));
+app.get('/', function (req, res) {
+    res.sendfile(__dirname + '/public/test.html');
+});
 var turn = true;
 var taulell = [];
 var select = [];
@@ -19,52 +26,66 @@ let enemic = 0;
 var turn = true;
 var click = false;
 let color;
+var usu = [];
+var turnAct = 0;
+var numUsu = 0;
 console.log((new Date()) + "WebSocket Server is listening on port 3000");
 
-server.on('connection', function connection(ws) {
-    console.log('Conected');
-    let table = ["Taulell", taulell];
-    ws.send(JSON.stringify(table));
-    let enviar = ["Pintar", pintat];
-    ws.send(JSON.stringify(enviar));
-    let turnMes = ["Turn", turn];
-    ws.send(JSON.stringify(enviar));
-    initDiag();
-    initTaulell();
-    initPint();
-    initSelect();
+io.on('connection', function (socket) {
+    board = new boar();
+    board.initDiag();
+    console.log(board.taulell);
+    board.initTaulell();
+    console.log(board.taulell);
+    board.initPint();
+    board.initSelect();
 
-    ws.on('message', function incoming(data) {
+    
+    console.log('Conected');
+    let table = ["Taulell", board.taulell];
+    socket.emit('message', JSON.stringify(table));
+    let enviar = ["Pintar", board.pintat];
+    socket.emit('message', JSON.stringify(enviar));
+    let turnMes = ["Turn", turn];
+    socket.emit('message', JSON.stringify(turnMes));
+
+    usu[numUsu] = socket.id;
+    numUsu++;
+    socket.on('message', function incoming(data) {
         // Broadcast to everyone else.
         //console.log("Rebut: " + data);
-        let pos = JSON.parse(data);
-        let idy = pos[0];
-        let idx = pos[1];
 
+        console.log("Turn: "+turn);
+        if (turn == true) {
+            turnAct = 0;
+        } else turnAct = 1;
 
-        server.clients.forEach(function each(client) {
+        if (socket.id == usu[turnAct] && numUsu==2) {
+            let pos = JSON.parse(data);
+            let idy = pos[0];
+            let idx = pos[1];
             console.log(click);
             //click=false;
-            if (taulell[idy][idx] != 0 && select[lastY][lastX]==0) {
+            if (board.taulell[idy][idx] != 0 && board.select[lastY][lastX] == 0) {
                 vaciar();
                 //console.log("He entrat");
                 select[idy][idx] = 1;
                 //let pesa = taulell[lastY][lastX];
-
                 //taulell[idy][idx].movRect();
                 //console.log(taulell[idy][idx].movRect());
-                if (turn) {
+                if (taulell[idy][idx].col() == "W") {
                     enemic = "B";
-                } else if (!turn) {
+
+                } else if (taulell[idy][idx].col() == "B") {
                     enemic = "W";
                 }
-
+                console.log(enemic);
                 //console.log("Enemic: "+enemic+" Pesa: "+pesa);
                 lastX = idx;
                 lastY = idy;
 
                 click = true
-            } else if ((taulell[idy][idx] == 0 || taulell[idy][idx].col()==enemic) && select[lastY][lastX] == 1) { //color 1 = yellow
+            } else if ((board.taulell[idy][idx] == 0 || board.taulell[idy][idx].col() == enemic) && board.select[lastY][lastX] == 1) { //color 1 = yellow
                 //console.log(taulell[idy][idx]);
                 //console.log("Anterior: "+taulell);
                 //console.log("Enemic: " + enemic);
@@ -72,34 +93,37 @@ server.on('connection', function connection(ws) {
                 if (turn) color = 1;
                 else color = 2;
 
-                if (taulell[lastY][lastX].col() == "W") {
-                    if (taulell[lastY][lastX].pieceType() == "r" && taulell[lastY][lastX].movRect(idx, idy)) {
+                if (board.taulell[lastY][lastX].col() == "W" && turn==true) {
+                    if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy)) {
 
-                        taulell[idy][idx] = taulell[lastY][lastX];
-                        taulell[lastY][lastX] = 0;
+                        board.taulell[idy][idx] = board.taulell[lastY][lastX];
+                        board.taulell[lastY][lastX] = 0;
                         paintH(lastX, idx, idy);
                         paintV(lastY, idy, idx);
                         //moureRect(idx, idy, "Wr");
-                    } else if (taulell[lastY][lastX].pieceType() == "b" && taulell[lastY][lastX].movDiag(idx, idy, diag)) {
-                        taulell[idy][idx] = taulell[lastY][lastX];
-                        taulell[lastY][lastX] = 0;
+                        turn=!turn;
+                    } else if (board.taulell[lastY][lastX].pieceType() == "b" && board.taulell[lastY][lastX].movDiag(idx, idy, diag)) {
+                        board.taulell[idy][idx] = board.taulell[lastY][lastX];
+                        board.taulell[lastY][lastX] = 0;
                         //moureDiag(idx, idy, "Wb");
                         paintDiag(idx, idy, color);
-                    } else if (taulell[lastY][lastX].pieceType() == "q" && (taulell[lastY][lastX].movDiag(idx, idy, diag) || taulell[lastY][lastX].movRect(idx, idy))) {
-                        taulell[idy][idx] = taulell[lastY][lastX];
-                        taulell[lastY][lastX] = 0;
+                        turn=!turn;
+                    } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, diag) || board.taulell[lastY][lastX].movRect(idx, idy))) {
+                        board.taulell[idy][idx] = taulell[lastY][lastX];
+                        board.taulell[lastY][lastX] = 0;
                         //paintH(lastX, idx, idy);
                         //paintV(lastY, idy, idx);
                         paintDiag(idx, idy, color);
+                        turn=!turn;
 
                     } else {
                         let error = ["Error", "Moviment Invalid"];
-                        client.send(JSON.stringify(error));
+                        socket.emit('message', JSON.stringify(error));
                     }
-                } else if (taulell[lastY][lastX].col() == "B") {
-                    if (taulell[lastY][lastX].pieceType() == "r" && taulell[lastY][lastX].movRect(idx, idy)) {
-                        taulell[idy][idx] = taulell[lastY][lastX];
-                        taulell[lastY][lastX] = 0;
+                } else if (board.taulell[lastY][lastX].col() == "B" && turn==false) {
+                    if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy)) {
+                        board.taulell[idy][idx] = taulell[lastY][lastX];
+                        board.taulell[lastY][lastX] = 0;
 
 
                         //moureRect(idx, idy, "Br");
@@ -114,15 +138,16 @@ server.on('connection', function connection(ws) {
                 //console.log("Nou: " + taulell);
                 vaciar();
                 //console.log('Selected: '+select);
-                select[lastY][lastX]=0;
-            
+                
+                select[lastY][lastX] = 0;
+
             }
 
             //click=false;
             console.log(taulell);
-            let table = ["Taulell", taulell];
+            let table = ["Taulell", board.taulell];
             //console.log("JSON= " + myJsonString);
-            client.send(JSON.stringify(table));
+            socket.emit('message', JSON.stringify(table));
 
             function vaciar() {
                 for (let i = 0; i < taulellyMAX; i++) {
@@ -140,13 +165,13 @@ server.on('connection', function connection(ws) {
                 while (trobat == false && i < diag[lastY][lastX].length) {
                     var str = diag[lastY][lastX][i];
                     let num = str.split(".");
-
+    
                     //console.log(diag[lastY][lastX][i].charAt(0) + diag[lastY][lastX][i].charAt(2));
                     if (num[0] == idy && num[1] == idx) trobat = true;
                     //console.log("Num0: "+num[0]+" Num1: "+num[1]);
                     i++;
                 }
-
+    
                 if (trobat == true) {
                     if (lastX != idx && lastY != idy) {
                         //console.log(taulell);
@@ -159,12 +184,12 @@ server.on('connection', function connection(ws) {
                         taulell[lastY][lastX] = 0;
                         turn = !turn;
                     }
-
+    
                 }
                 let enviar = ["Turn", turn];
                 client.send(JSON.stringify(enviar));
             }
-
+    
             function moureRect(idx, idy, piece) {
                 if (idx == lastX || idy == lastY) {
                     taulell[idy][idx] = piece;
@@ -174,7 +199,7 @@ server.on('connection', function connection(ws) {
                     taulell[lastY][lastX] = 0;
                     turn = !turn;
                 }
-
+    
                 let enviar = ["Turn", turn];
                 client.send(JSON.stringify(enviar));
             }*/
@@ -199,8 +224,8 @@ server.on('connection', function connection(ws) {
                     last = cur;
                 }
                 console.log("Pintar");
-                let enviar = ["Pintar", pintat];
-                client.send(JSON.stringify(enviar));
+                let enviar = ["Pintar", board.pintat];
+                socket.emit('message', JSON.stringify(enviar));
             }
 
             function paintV(last, cur, fix) {
@@ -222,8 +247,8 @@ server.on('connection', function connection(ws) {
                     }
                 }
 
-                let enviar = ["Pintar", pintat];
-                client.send(JSON.stringify(enviar));
+                let enviar = ["Pintar", board.pintat];
+                socket.emit('message', JSON.stringify(enviar));
             }
 
             function paintDiag(idx, idy, color) {
@@ -262,15 +287,19 @@ server.on('connection', function connection(ws) {
                     pintat[y][x] = color
                     x--; y--;
                 }
-                let enviar = ["Pintar", pintat];
-                client.send(JSON.stringify(enviar));
+                let enviar = ["Pintar", board.pintat];
+                socket.emit('message', JSON.stringify(enviar));
             }
-        });
+        }
     });
 });
 
+http.listen(8082, function () {
+    console.log('listening on localhost:8082');
+});
 
-function initPint() {
+/*function initPint() {
+    pintat = [];
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
         for (let j = 0; j < taulellxMAX; j++) {
@@ -282,6 +311,7 @@ function initPint() {
 
 function initTaulell() {
     var scope = {};
+    taulell = [];
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
         linea.push(scope['W' + i + 'q'] = new queen(i, 1, "W", "q"), scope['W' + i + 'r'] = new rook(i, 1, "W", "r"), scope['W' + i + 'b'] = new bishop(i, 2, "W", "b"), 0, 0, 0, 0, 0, 0, 0, 0, 'Wq', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, scope['B' + i + 'r'] = new rook(i, 22, "B", "r"), 'Br');
@@ -291,9 +321,12 @@ function initTaulell() {
         }
         taulell.push(linea);
     }
+
+
 }
 
 function initSelect() {
+    select = [];
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
         for (let j = 0; j < taulellxMAX; j++) {
@@ -304,7 +337,7 @@ function initSelect() {
 }
 
 function initDiag() {
-
+    diag = [];
     //TODO: change 2 por cada taulax o y max
     for (let i = 0; i < taulellyMAX; i++) {
         var linea = [];
@@ -349,4 +382,4 @@ function initDiag() {
         diag.push(linea)
         //console.log(diag);
     }
-}
+}*/
