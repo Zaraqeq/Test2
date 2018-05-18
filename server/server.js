@@ -6,7 +6,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 app.get('/', function (req, res) {
-    res.sendfile('test.html');
+    res.sendfile(__dirname+'/test.html');
 });
 var turn = true;
 var taulell = [
