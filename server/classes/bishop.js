@@ -23,7 +23,7 @@ class Bishop {
         return trobat;
     }
 
-    movDiag(newx, newy, diag, taulell, enemic, aliat) {
+    movDiag(newx, newy, diag, taulell, enemic, aliat, board) {
         var trobat = false;
         var trobatP = false;
         var trobatE = false;
@@ -93,6 +93,7 @@ class Bishop {
             //if(trobatE==true && trobatP==true) trobatP = false; //Mata enemic en diagonal amb la comprobacio de colisio
 
             if (trobatP == false) {
+                paintDiag(newx, newy,this.idx, this.idy, this.color);
                 this.idx = newx;
                 this.idy = newy;
                 return true;
@@ -112,6 +113,47 @@ class Bishop {
 
 
 
+}
+
+function paintDiag(newx, newy,idx, idy, color) {
+    console.log(board.pintat);
+    let x = idx;
+    let y = idy;
+    console.log("X: "+x+" Y: "+y+" newX:"+newx+" newY:"+newy);
+    while (x <= newx && y <= newy)//Bottom Right
+    {
+        console.log("pint");
+        board.pintat[y][x] = color;
+        x++; y++;
+    }
+
+    x = idx;
+    y = idy;
+
+    //console.log(pintat);
+    while (x >= newx && y < newy)//Bottom Left
+    {
+        board.pintat[y][x] = color;
+        x--; y++;
+    }
+
+    x = idx;
+    y = idy;
+    while (x <= newx && y >= newy)//Top Right
+    {
+        board.pintat[y][x] = color;
+        x++; y--;
+    }
+    
+
+    x = idx;
+    y = idy;
+
+    while (x >= newx && y >= newy)//Top left
+    {
+        board.pintat[y][x] = color;
+        x--; y--;
+    }
 }
 
 module.exports = Bishop;

@@ -100,16 +100,13 @@ io.on('connection', function (socket) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
                     turn = !turn;
-                } else if (board.taulell[lastY][lastX].pieceType() == "b" && board.taulell[lastY][lastX].movDiag(idx, idy, board.diag, board.taulell)) {
+                } else if (board.taulell[lastY][lastX].pieceType() == "b" && board.taulell[lastY][lastX].movDiag(idx, idy, board.diag, board.taulell, board)) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
                     turn = !turn;
-                } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, board.diag) || board.taulell[lastY][lastX].movRect(idx, idy,board.taulell, enemic))) {
+                } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, board.diag, board.taulell, board) || board.taulell[lastY][lastX].movRect(idx, idy,board.taulell, enemic))) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
-                    //paintH(lastX, idx, idy);
-                    //paintV(lastY, idy, idx);
-                    paintDiag(idx, idy, color);
                     turn = !turn;
 
                 } else if (board.taulell[lastY][lastX].pieceType() == "p" && board.taulell[lastY][lastX].moureCurt(idx, idy, 2, board, color)) {
