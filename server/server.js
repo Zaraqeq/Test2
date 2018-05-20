@@ -96,21 +96,15 @@ io.on('connection', function (socket) {
             else color = 2;
 
             if (board.taulell[lastY][lastX].col() == "W" && turn == true) {
-                if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy, board.taulell)) {
-
+                if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy, board.taulell, enemic, board, color)) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
-                    paintH(lastX, idx, idy);
-                    paintV(lastY, idy, idx);
-                    //moureRect(idx, idy, "Wr");
                     turn = !turn;
                 } else if (board.taulell[lastY][lastX].pieceType() == "b" && board.taulell[lastY][lastX].movDiag(idx, idy, board.diag, board.taulell)) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
-                    //moureDiag(idx, idy, "Wb");
-                    paintDiag(idx, idy, color);
                     turn = !turn;
-                } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, board.diag) || board.taulell[lastY][lastX].movRect(idx, idy))) {
+                } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, board.diag) || board.taulell[lastY][lastX].movRect(idx, idy,board.taulell, enemic))) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
                     //paintH(lastX, idx, idy);
@@ -118,186 +112,210 @@ io.on('connection', function (socket) {
                     paintDiag(idx, idy, color);
                     turn = !turn;
 
-                } else if (board.taulell[lastY][lastX].pieceType() == "p" && board.taulell[lastY][lastX].moureCurt(idx, idy, 2)) {
+                } else if (board.taulell[lastY][lastX].pieceType() == "p" && board.taulell[lastY][lastX].moureCurt(idx, idy, 2, board, color)) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
                     turn = !turn;
                 } else {
                     let error = ["Error", "Moviment Invalid"];
                     socket.emit('message', JSON.stringify(error));
+                    socket.broadcast.emit('message', JSON.stringify(error));
                 }
             } else if (board.taulell[lastY][lastX].col() == "B" && turn == false) {
-                if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy)) {
+                if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy, board.taulell, board, color)) {
                     board.taulell[idy][idx] = board.taulell[lastY][lastX];
                     board.taulell[lastY][lastX] = 0;
                     turn = !turn;
 
                     //moureRect(idx, idy, "Br");
-                } /*else if (taulell[lastY][lastX].endsWith("b")) {
+                } else if (board.taulell[lastY][lastX].pieceType() == "p") {
+                    if (board.taulell[idy][idx] != 0 && board.taulell[idy][idx].col() == enemic ) {
+                        if (board.taulell[lastY][lastX].moureCurtDiag(idx, idy)) {
+                            board.taulell[idy][idx] = board.taulell[lastY][lastX];
+                            board.taulell[lastY][lastX] = 0;
+                            turn = !turn;
+                        }
+                    }else {
+                        if (board.taulell[lastY][lastX].moureCurt(idx, idy, 2)) {
+                            board.taulell[idy][idx] = board.taulell[lastY][lastX];
+                            board.taulell[lastY][lastX] = 0;
+                            turn = !turn;
+                        }
+                    }/*else if (taulell[lastY][lastX].endsWith("b")) {
                         moureDiag(idx, idy, "Bb");
                     } else if (taulell[lastY][lastX].endsWith("q")) {
                         moureDiag(idx, idy, "Bq");
                         moureRect(idx, idy, "Bq");
                     }*/
-            }
-
-            //console.log("Nou: " + taulell);
-            vaciar();
-            //console.log('Selected: '+select);
-
-            board.select[lastY][lastX] = 0;
-
-        }
-
-        //click=false;
-        //console.log(taulell);
-        let table = ["Taulell", board.taulell];
-        //console.log("JSON= " + myJsonString);
-        socket.emit('message', JSON.stringify(table));
-
-        function vaciar() {
-            for (let i = 0; i < taulellyMAX; i++) {
-                for (let x = 0; x < taulellxMAX; x++) {
-                    board.select[i][x] = 0;
                 }
             }
-        }
 
-        /*function moureDiag(idx, idy, piece) {
-            let i = 0;
-            var trobat = false;
-            let color;
-            //console.log("Lenght: "+diag[lastY][lastX].length+" I: "+i);
-            while (trobat == false && i < diag[lastY][lastX].length) {
-                var str = diag[lastY][lastX][i];
-                let num = str.split(".");
- 
-                //console.log(diag[lastY][lastX][i].charAt(0) + diag[lastY][lastX][i].charAt(2));
-                if (num[0] == idy && num[1] == idx) trobat = true;
-                //console.log("Num0: "+num[0]+" Num1: "+num[1]);
-                i++;
+                //console.log("Nou: " + taulell);
+                vaciar();
+                //console.log('Selected: '+select);
+
+                board.select[lastY][lastX] = 0;
+
             }
- 
-            if (trobat == true) {
-                if (lastX != idx && lastY != idy) {
-                    //console.log(taulell);
-                    //console.log("IDY: "+idy+" IDX: "+idx+" Piece: "+piece+" LastY: "+lastY+" LastX: "+lastX);
+
+            //click=false;
+            //console.log(taulell);
+            let table = ["Taulell", board.taulell];
+            //console.log("JSON= " + myJsonString);
+            socket.emit('message', JSON.stringify(table));
+            socket.broadcast.emit('message', JSON.stringify(table));
+
+            let pint = ["Pintar", board.pintat];
+            //console.log("JSON= " + myJsonString);
+            socket.emit('message', JSON.stringify(pint));
+            socket.broadcast.emit('message', JSON.stringify(pint));
+
+            function vaciar() {
+                for (let i = 0; i < taulellyMAX; i++) {
+                    for (let x = 0; x < taulellxMAX; x++) {
+                        board.select[i][x] = 0;
+                    }
+                }
+            }
+
+            /*function moureDiag(idx, idy, piece) {
+                let i = 0;
+                var trobat = false;
+                let color;
+                //console.log("Lenght: "+diag[lastY][lastX].length+" I: "+i);
+                while (trobat == false && i < diag[lastY][lastX].length) {
+                    var str = diag[lastY][lastX][i];
+                    let num = str.split(".");
+     
+                    //console.log(diag[lastY][lastX][i].charAt(0) + diag[lastY][lastX][i].charAt(2));
+                    if (num[0] == idy && num[1] == idx) trobat = true;
+                    //console.log("Num0: "+num[0]+" Num1: "+num[1]);
+                    i++;
+                }
+     
+                if (trobat == true) {
+                    if (lastX != idx && lastY != idy) {
+                        //console.log(taulell);
+                        //console.log("IDY: "+idy+" IDX: "+idx+" Piece: "+piece+" LastY: "+lastY+" LastX: "+lastX);
+                        taulell[idy][idx] = piece;
+                        //console.log(taulell);
+                        if (piece.startsWith("W")) color = 1;
+                        else color = 2;
+                        paintDiag(idx, idy, color);
+                        taulell[lastY][lastX] = 0;
+                        turn = !turn;
+                    }
+     
+                }
+                let enviar = ["Turn", turn];
+                client.send(JSON.stringify(enviar));
+            }
+     
+            function moureRect(idx, idy, piece) {
+                if (idx == lastX || idy == lastY) {
                     taulell[idy][idx] = piece;
-                    //console.log(taulell);
-                    if (piece.startsWith("W")) color = 1;
-                    else color = 2;
-                    paintDiag(idx, idy, color);
+                    paintH(lastX, idx, idy);
+                    paintV(lastY, idy, idx);
+                    //console.log("Taula pintada: " + pintat);
                     taulell[lastY][lastX] = 0;
                     turn = !turn;
                 }
- 
-            }
-            let enviar = ["Turn", turn];
-            client.send(JSON.stringify(enviar));
-        }
- 
-        function moureRect(idx, idy, piece) {
-            if (idx == lastX || idy == lastY) {
-                taulell[idy][idx] = piece;
-                paintH(lastX, idx, idy);
-                paintV(lastY, idy, idx);
-                //console.log("Taula pintada: " + pintat);
-                taulell[lastY][lastX] = 0;
-                turn = !turn;
-            }
- 
-            let enviar = ["Turn", turn];
-            client.send(JSON.stringify(enviar));
-        }*/
+     
+                let enviar = ["Turn", turn];
+                client.send(JSON.stringify(enviar));
+            }*/
 
-        function paintH(last, cur, fix) {
-            if (last < cur && last != cur) {
-                //console.log(last, cur);
-                for (last; last <= cur; last++) {
-                    board.pintat[fix][last] = color;
-                    //console.log("B1 Last X: " + last + " Curr X: " + cur);
-                }
-                //console.log(last, cur);
-                last = cur;
-            }
-
-            if (last > cur && last != cur) {
-
-                for (last; last >= cur; last--) {
-                    board.pintat[fix][last] = color;
-                    //console.log("B2 Last X: " + last + " Curr X: " + cur);
-                }
-                last = cur;
-            }
-            //console.log("Pintar");
-            let enviar = ["Pintar", board.pintat];
-            socket.emit('message', JSON.stringify(enviar));
-        }
-
-        function paintV(last, cur, fix) {
-            if (last != cur) {
-                if (last < cur) {
+            /*function paintH(last, cur, fix) {
+                if (last < cur && last != cur) {
+                    //console.log(last, cur);
                     for (last; last <= cur; last++) {
-                        board.pintat[last][fix] = color;
-                        //console.log("B1 Last Y: " + last + " CurrY: " + cur);
+                        board.pintat[fix][last] = color;
+                        //console.log("B1 Last X: " + last + " Curr X: " + cur);
                     }
+                    //console.log(last, cur);
                     last = cur;
                 }
 
-                if (last > cur) {
+                if (last > cur && last != cur) {
+
                     for (last; last >= cur; last--) {
-                        board.pintat[last][fix] = color;
-                        //console.log("B2 LastY: " + last + " CurrY: " + cur);
+                        board.pintat[fix][last] = color;
+                        //console.log("B2 Last X: " + last + " Curr X: " + cur);
                     }
                     last = cur;
                 }
+                //console.log("Pintar");
+                let enviar = ["Pintar", board.pintat];
+                socket.emit('message', JSON.stringify(enviar));
+                socket.broadcast.emit('message', JSON.stringify(enviar));
             }
 
-            let enviar = ["Pintar", board.pintat];
-            socket.emit('message', JSON.stringify(enviar));
-        }
+            function paintV(last, cur, fix) {
+                if (last != cur) {
+                    if (last < cur) {
+                        for (last; last <= cur; last++) {
+                            board.pintat[last][fix] = color;
+                            //console.log("B1 Last Y: " + last + " CurrY: " + cur);
+                        }
+                        last = cur;
+                    }
 
-        function paintDiag(idx, idy, color) {
-            let x = lastX;
-            let y = lastY;
+                    if (last > cur) {
+                        for (last; last >= cur; last--) {
+                            board.pintat[last][fix] = color;
+                            //console.log("B2 LastY: " + last + " CurrY: " + cur);
+                        }
+                        last = cur;
+                    }
+                }
 
-            while (x <= idx && y <= idy)//Bottom Right
-            {
-                board.pintat[y][x] = color
-                x++; y++;
+                let enviar = ["Pintar", board.pintat];
+                socket.emit('message', JSON.stringify(enviar));
+                socket.broadcast.emit('message', JSON.stringify(enviar));
+            }*/
+
+            function paintDiag(idx, idy, color) {
+                let x = lastX;
+                let y = lastY;
+
+                while (x <= idx && y <= idy)//Bottom Right
+                {
+                    board.pintat[y][x] = color
+                    x++; y++;
+                }
+
+                x = lastX;
+                y = lastY;
+
+                //console.log(pintat);
+                while (x >= idx && y < idy)//Bottom Left
+                {
+                    board.pintat[y][x] = color
+                    x--; y++;
+                }
+
+                x = lastX;
+                y = lastY;
+                while (x <= idx && y >= idy)//Top Right
+                {
+                    board.pintat[y][x] = color
+                    x++; y--;
+                }
+
+                x = lastX;
+                y = lastY;
+
+                while (x >= idx && y >= idy)//Top left
+                {
+                    board.pintat[y][x] = color
+                    x--; y--;
+                }
+                let enviar = ["Pintar", board.pintat];
+                socket.emit('message', JSON.stringify(enviar));
+                socket.broadcast.emit('message', JSON.stringify(enviar));
             }
-
-            x = lastX;
-            y = lastY;
-
-            //console.log(pintat);
-            while (x >= idx && y < idy)//Bottom Left
-            {
-                board.pintat[y][x] = color
-                x--; y++;
-            }
-
-            x = lastX;
-            y = lastY;
-            while (x <= idx && y >= idy)//Top Right
-            {
-                board.pintat[y][x] = color
-                x++; y--;
-            }
-
-            x = lastX;
-            y = lastY;
-
-            while (x >= idx && y >= idy)//Top left
-            {
-                board.pintat[y][x] = color
-                x--; y--;
-            }
-            let enviar = ["Pintar", board.pintat];
-            socket.emit('message', JSON.stringify(enviar));
-        }
-        // }
-    });
+            // }
+        });
 });
 
 http.listen(8082, function () {

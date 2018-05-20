@@ -63,11 +63,14 @@ socket.on('message', function (data) {
         taulell = [];
         console.log("Taulell");
         taulell = mess[1];
+        rellenarTaulell();
     }
+
     if (mess[0] == "Pintar") {
         pint = [];
         console.log("Pintar");
         pint = mess[1];
+        rellenarPint();
     }
     if(mess[0]=="Turn")
     {
@@ -89,7 +92,7 @@ socket.on('message', function (data) {
         alert(mess[1]);
     }
 
-    rellenar();
+    //
 });
 
 function send(idy, idx) {
@@ -128,7 +131,7 @@ function createTable()
     body.appendChild(tbl);
 }
 
-function rellenar() {
+function rellenarTaulell() {
     
 
     for (let i = 0; i < taulellyMAX; i++) {
@@ -156,14 +159,24 @@ function rellenar() {
 
             if (taulell[i][x] == '0') document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";
             
-            /*if(pint[i][x]==1)
+            
+        }
+    }
+}
+
+function rellenarPint()
+{
+    console.log(pint);
+    for (let i = 0; i < taulellyMAX; i++) {
+        for (let x = 0; x < taulellxMAX; x++) {
+    if(pint[i][x]=="W")
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
             } 
-            if(pint[i][x]==2)
+            if(pint[i][x]=="B")
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer2;
-            }*/
+            }
         }
     }
 }

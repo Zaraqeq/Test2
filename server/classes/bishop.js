@@ -23,12 +23,13 @@ class Bishop {
         return trobat;
     }
 
-    movDiag(newx, newy, diag, taulell) {
+    movDiag(newx, newy, diag, taulell, enemic, aliat) {
         var trobat = false;
         var trobatP = false;
+        var trobatE = false;
         let i = 0;
 
-        console.log(diag);
+        //console.log(diag);
         while (trobat == false && i < diag[this.idy][this.idx].length) {
             var str = diag[this.idy][this.idx][i];
             let num = str.split(".");
@@ -47,13 +48,15 @@ class Bishop {
             let y = this.idy;
             if (this.idx < newx && this.idy < newy) {
                 console.log("Entra if Botom Right");
-                while (x < newx && y < newy && trobatP == false)//Bottom Right
-                {
+                
+                while (x <= newx && y <= newy && trobatP == false){
                     x++; y++;
-                    if (taulell[y][x] != 0) trobatP = true;
+                    if (taulell[y][x]!=0) trobatP = true;
                     
-                }
+                    
+                }//Bottom Right
             }
+            console.log("Y: "+y+" X: "+x+" newX: "+newx+" newY: "+newy);
             if (this.idx > newx && this.idy < newy) {
                 console.log("Entra if Botom Left");
                 while (x > newx && y < newy && trobatP == false)//Bottom Left
@@ -87,6 +90,7 @@ class Bishop {
 
             
 
+            //if(trobatE==true && trobatP==true) trobatP = false; //Mata enemic en diagonal amb la comprobacio de colisio
 
             if (trobatP == false) {
                 this.idx = newx;

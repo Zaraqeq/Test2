@@ -51,13 +51,95 @@ class Queen{
         } else return false;
     }
 
-    movRect(newx, newy)
+    movRect(newx, newy, taulell, enemic)
     {
+        var trobatP = false;
         //console.log("Mov"+this.idy);
         if (this.idx == newx || this.idy == newy) {
-            this.idx = newx;
-            this.idy = newy;
-            return true;
+            let x = this.idx;
+            let y = this.idy;
+            if (this.idx == newx && newy < this.idy)//Vert Superior
+            {
+                console.log("Entra if Vert SUP");
+                console.log("Y: "+y+" Newy: "+newy);
+                while (y > newy+1 && trobatP == false)
+                {
+                    //console.log("holi" + taulell[y][x]);
+                    y--;
+                    if (taulell[y][x] != 0)
+                    {
+                        console.log("Trobat");
+                        trobatP = true;
+                    } 
+                   
+                }
+            }
+
+            if (this.idx == newx && newy > this.idy)//Vert Inferior
+            {
+                console.log("Y: "+y+" Newy: "+newy);
+                console.log("Entra if Vert INF");
+                while (y < newy-1 && trobatP == false)
+                {
+                    y++;
+                    console.log(taulell[y][x]);
+                    if (taulell[y][x] != 0 ) 
+                    {
+                        console.log("Trobat");
+                        trobatP = true;
+                    } 
+                    
+                }
+            }
+
+            if (this.idy == newy && newx < this.idx)//Vert Inferior
+            {
+                console.log("Y: "+y+" Newy: "+newy);
+                console.log("Entra if Hor Dret");
+                while (x > newx+1 && trobatP == false)
+                {
+                    x--;
+                    console.log(taulell[y][x]);
+                    if (taulell[y][x] != 0 ) 
+                    {
+                        console.log("Trobat");
+                        trobatP = true;
+                    } 
+                    
+                }
+            }
+
+            if (this.idy == newy && newx > this.idx)//Vert Inferior
+            {
+                console.log("Y: "+y+" Newy: "+newy);
+                console.log("Entra if Vert INF");
+                while (x < newx-1 && trobatP == false)
+                {
+                    x++;
+                    console.log(taulell[y][x]);
+                    if (taulell[y][x] != 0 ) 
+                    {
+                        console.log("Trobat");
+                        trobatP = true;
+                    } 
+                    
+                }
+            }
+            console.log(taulell[newy][newx].color);
+            if(trobatP==false && taulell[newy][newx].color == enemic)
+            {
+                
+                this.idx = newx;
+                this.idy = newy;
+                return true;
+            }else if(trobatP==false)
+            {
+                console.log(trobatP);
+                this.idx = newx;
+                this.idy = newy;
+                return true;
+            }else return false;
+            
         } else return false;
     }
 
