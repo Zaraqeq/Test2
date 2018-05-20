@@ -34,11 +34,13 @@ console.log((new Date()) + "WebSocket Server is listening on port 3000");
 io.on('connection', function (socket) {
     board = new boar();
     board.initDiag();
-    console.log(board.taulell);
+    //console.log(board.taulell);
     board.initTaulell();
-    console.log(board.taulell);
+    //console.log(board.taulell);
     board.initPint();
+    //console.log(board.pintat);
     board.initSelect();
+    //console.log(board.select);
 
     
     console.log('Conected');
@@ -55,31 +57,31 @@ io.on('connection', function (socket) {
         // Broadcast to everyone else.
         //console.log("Rebut: " + data);
 
-        console.log("Turn: "+turn);
+        //console.log("Turn: "+turn);
         if (turn == true) {
             turnAct = 0;
         } else turnAct = 1;
 
-        if (socket.id == usu[turnAct] && numUsu==2) {
+        //if (socket.id == usu[turnAct] && numUsu==2) {
             let pos = JSON.parse(data);
             let idy = pos[0];
             let idx = pos[1];
-            console.log(click);
+            //console.log(click);
             //click=false;
             if (board.taulell[idy][idx] != 0 && board.select[lastY][lastX] == 0) {
                 vaciar();
                 //console.log("He entrat");
-                select[idy][idx] = 1;
+                board.select[idy][idx] = 1;
                 //let pesa = taulell[lastY][lastX];
                 //taulell[idy][idx].movRect();
                 //console.log(taulell[idy][idx].movRect());
-                if (taulell[idy][idx].col() == "W") {
+                if (board.taulell[idy][idx].col() == "W") {
                     enemic = "B";
 
-                } else if (taulell[idy][idx].col() == "B") {
+                } else if (board.taulell[idy][idx].col() == "B") {
                     enemic = "W";
                 }
-                console.log(enemic);
+                //console.log(enemic);
                 //console.log("Enemic: "+enemic+" Pesa: "+pesa);
                 lastX = idx;
                 lastY = idy;
@@ -94,7 +96,7 @@ io.on('connection', function (socket) {
                 else color = 2;
 
                 if (board.taulell[lastY][lastX].col() == "W" && turn==true) {
-                    if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy)) {
+                    if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy, board.taulell)) {
 
                         board.taulell[idy][idx] = board.taulell[lastY][lastX];
                         board.taulell[lastY][lastX] = 0;
@@ -102,29 +104,32 @@ io.on('connection', function (socket) {
                         paintV(lastY, idy, idx);
                         //moureRect(idx, idy, "Wr");
                         turn=!turn;
-                    } else if (board.taulell[lastY][lastX].pieceType() == "b" && board.taulell[lastY][lastX].movDiag(idx, idy, diag)) {
+                    } else if (board.taulell[lastY][lastX].pieceType() == "b" && board.taulell[lastY][lastX].movDiag(idx, idy, board.diag, board.taulell)) {
                         board.taulell[idy][idx] = board.taulell[lastY][lastX];
                         board.taulell[lastY][lastX] = 0;
                         //moureDiag(idx, idy, "Wb");
                         paintDiag(idx, idy, color);
                         turn=!turn;
-                    } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, diag) || board.taulell[lastY][lastX].movRect(idx, idy))) {
-                        board.taulell[idy][idx] = taulell[lastY][lastX];
+                    } else if (board.taulell[lastY][lastX].pieceType() == "q" && (board.taulell[lastY][lastX].movDiag(idx, idy, board.diag) || board.taulell[lastY][lastX].movRect(idx, idy))) {
+                        board.taulell[idy][idx] = board.taulell[lastY][lastX];
                         board.taulell[lastY][lastX] = 0;
                         //paintH(lastX, idx, idy);
                         //paintV(lastY, idy, idx);
                         paintDiag(idx, idy, color);
                         turn=!turn;
 
-                    } else {
+                    }else if(board.taulell[lastY][lastX].pieceType() == "q" && board.taulell[lastY][lastX].m) 
+                    {
+                        
+                    }else {
                         let error = ["Error", "Moviment Invalid"];
                         socket.emit('message', JSON.stringify(error));
                     }
                 } else if (board.taulell[lastY][lastX].col() == "B" && turn==false) {
                     if (board.taulell[lastY][lastX].pieceType() == "r" && board.taulell[lastY][lastX].movRect(idx, idy)) {
-                        board.taulell[idy][idx] = taulell[lastY][lastX];
+                        board.taulell[idy][idx] = board.taulell[lastY][lastX];
                         board.taulell[lastY][lastX] = 0;
-
+                        turn=!turn;   
 
                         //moureRect(idx, idy, "Br");
                     } /*else if (taulell[lastY][lastX].endsWith("b")) {
@@ -139,12 +144,12 @@ io.on('connection', function (socket) {
                 vaciar();
                 //console.log('Selected: '+select);
                 
-                select[lastY][lastX] = 0;
+                board.select[lastY][lastX] = 0;
 
             }
 
             //click=false;
-            console.log(taulell);
+            //console.log(taulell);
             let table = ["Taulell", board.taulell];
             //console.log("JSON= " + myJsonString);
             socket.emit('message', JSON.stringify(table));
@@ -152,7 +157,7 @@ io.on('connection', function (socket) {
             function vaciar() {
                 for (let i = 0; i < taulellyMAX; i++) {
                     for (let x = 0; x < taulellxMAX; x++) {
-                        select[i][x] = 0;
+                        board.select[i][x] = 0;
                     }
                 }
             }
@@ -208,7 +213,7 @@ io.on('connection', function (socket) {
                 if (last < cur && last != cur) {
                     //console.log(last, cur);
                     for (last; last <= cur; last++) {
-                        pintat[fix][last] = color;
+                        board.pintat[fix][last] = color;
                         //console.log("B1 Last X: " + last + " Curr X: " + cur);
                     }
                     //console.log(last, cur);
@@ -218,12 +223,12 @@ io.on('connection', function (socket) {
                 if (last > cur && last != cur) {
 
                     for (last; last >= cur; last--) {
-                        pintat[fix][last] = color;
+                        board.pintat[fix][last] = color;
                         //console.log("B2 Last X: " + last + " Curr X: " + cur);
                     }
                     last = cur;
                 }
-                console.log("Pintar");
+                //console.log("Pintar");
                 let enviar = ["Pintar", board.pintat];
                 socket.emit('message', JSON.stringify(enviar));
             }
@@ -232,7 +237,7 @@ io.on('connection', function (socket) {
                 if (last != cur) {
                     if (last < cur) {
                         for (last; last <= cur; last++) {
-                            pintat[last][fix] = color;
+                            board.pintat[last][fix] = color;
                             //console.log("B1 Last Y: " + last + " CurrY: " + cur);
                         }
                         last = cur;
@@ -240,7 +245,7 @@ io.on('connection', function (socket) {
 
                     if (last > cur) {
                         for (last; last >= cur; last--) {
-                            pintat[last][fix] = color;
+                            board.pintat[last][fix] = color;
                             //console.log("B2 LastY: " + last + " CurrY: " + cur);
                         }
                         last = cur;
@@ -257,7 +262,7 @@ io.on('connection', function (socket) {
 
                 while (x <= idx && y <= idy)//Bottom Right
                 {
-                    pintat[y][x] = color
+                    board.pintat[y][x] = color
                     x++; y++;
                 }
 
@@ -267,7 +272,7 @@ io.on('connection', function (socket) {
                 //console.log(pintat);
                 while (x >= idx && y < idy)//Bottom Left
                 {
-                    pintat[y][x] = color
+                    board.pintat[y][x] = color
                     x--; y++;
                 }
 
@@ -275,7 +280,7 @@ io.on('connection', function (socket) {
                 y = lastY;
                 while (x <= idx && y >= idy)//Top Right
                 {
-                    pintat[y][x] = color
+                    board.pintat[y][x] = color
                     x++; y--;
                 }
 
@@ -284,13 +289,13 @@ io.on('connection', function (socket) {
 
                 while (x >= idx && y >= idy)//Top left
                 {
-                    pintat[y][x] = color
+                    board.pintat[y][x] = color
                     x--; y--;
                 }
                 let enviar = ["Pintar", board.pintat];
                 socket.emit('message', JSON.stringify(enviar));
             }
-        }
+       // }
     });
 });
 

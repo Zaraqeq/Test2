@@ -108,14 +108,14 @@ function rellenar() {
                 case 'Wh' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('/Bh.png')";break;
             }
 
-            /*if(pint[i][x]==1)
+            if(pint[i][x]==1)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
             } 
             if(pint[i][x]==2)
             {
                 document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer2;
-            }*/
+            }
         }
     }
 }

@@ -1,15 +1,15 @@
 const rook = require('./rook.js');
-const queen = require('./rook.js');
-const bishop = require('./rook.js');
+const queen = require('./queen.js');
+const bishop = require('./bishop.js');
 const taulellxMAX = 24;
 const taulellyMAX = 24;
 class Board {
 
     constructor() {
-       this.taulell = [];
-       this.pintat = [];
-       this.select = [];
-    this.diag = [];
+        this.taulell = [];
+        this.pintat = [];
+        this.select = [];
+        this.diag = [];
     }
     
     initTaulell() {
@@ -22,8 +22,8 @@ class Board {
             }*/
             this.taulell.push(linea);
         }
-        console.log(this.taulell);
-        return this.taulell;
+        //console.log(this.taulell);
+        //return this.taulell;
     }
 
     initSelect() {
@@ -32,7 +32,7 @@ class Board {
             for (let j = 0; j < taulellxMAX; j++) {
                 linea.push(0);
             }
-            this.select.push(this.linea);
+            this.select.push(linea);
         }
     }
 
