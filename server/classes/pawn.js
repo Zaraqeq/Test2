@@ -1,6 +1,6 @@
 class Pawn{
 
-    constructor()
+    constructor(idy, idx, color, pesa)
     {
         this.idx=idx; 
         this.idy=idy; 
@@ -8,12 +8,12 @@ class Pawn{
         this.pesa = pesa;  
     }
     
-    moureCurt(newx, )
+    moureCurt(newx, newy, limit)
     {
-        if((idx <= lastX+limit && idx >= lastX-limit) && lastY == idy){ //Horitzontal
+        if((newx <= this.idx+limit && newx >= this.idx-limit) && this.idy == newy){ //Horitzontal
             //console.log("Horitzontal"+"LastX: "+lastX+" X: "+idx);
             return true;
-        }else if((idy <= lastY+limit && idy >= lastY-limit) && lastX == idx){ //Vertical
+        }else if((newy <= this.idy+limit && newy >= this.idy-limit) && this.idx == newx){ //Vertical
             //console.log("Vertical"+"LastY: "+lastY+" Y: "+idy);
             return true;
         }else return false;
