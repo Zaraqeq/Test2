@@ -1,4 +1,4 @@
-class Pawn {
+class King {
 
     constructor(idy, idx, color, pesa) {
         this.idx = idx;
@@ -27,23 +27,24 @@ class Pawn {
 
     moureCurtDiag(newx, newy) {
 
-        if ((newx == this.idx + 2 && newy == this.idy + 2) || (newx == this.idx + 1 && newy == this.idy + 1)) {
+        if (newx == this.idx + 1 && newy == this.idy + 1) {
             console.log("Botom Right");
             paintDiag(newx, newy,this.idx, this.idy, this.color);
             this.idx = newx;
             this.idy = newy;
             return true;
-        } else if ((newx == this.idx - 2 && newy == this.idy + 2) || (newx == this.idx - 1 && newy <= this.idy + 1)) {
+            
+        } else if (newx == this.idx - 1 && newy <= this.idy + 1) {
             paintDiag(newx, newy,this.idx, this.idy, this.color);
             this.idx = newx;
             this.idy = newy;
             return true;
-        } else if ((newx == this.idx + 2 && newy == this.idy - 2) || (newx == this.idx + 1 && newy == this.idy - 1)) {
+        } else if (newx == this.idx + 1 && newy == this.idy - 1) {
             paintDiag(newx, newy,this.idx, this.idy, this.color);
             this.idx = newx;
             this.idy = newy;
             return true;
-        } else if ((newx == this.idx - 2 && newy == this.idy - 2) || (newx == this.idx - 1 && newy == this.idy - 1)) {
+        } else if (newx == this.idx - 1 && newy == this.idy - 1) {
             paintDiag(newx, newy,this.idx, this.idy, this.color);
             this.idx = newx;
             this.idy = newy;
@@ -104,6 +105,7 @@ function paintV(last, cur, fix, color) {
         }
     }
 }
+
 function paintDiag(newx, newy,idx, idy, color) {
     console.log(board.pintat);
     let x = idx;
@@ -145,5 +147,4 @@ function paintDiag(newx, newy,idx, idy, color) {
     }
 }
 
-
-module.exports = Pawn;
+module.exports = King;

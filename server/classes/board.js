@@ -2,6 +2,7 @@ const rook = require('./rook.js');
 const queen = require('./queen.js');
 const bishop = require('./bishop.js');
 const paw = require('./pawn.js');
+const king = require('./king.js');
 const taulellxMAX = 24;
 const taulellyMAX = 24;
 class Board {
@@ -17,7 +18,7 @@ class Board {
         let scope = {};
         for (let i = 0; i < taulellyMAX; i++) {
             let linea = [];
-            linea.push(scope['W' + i + 'q'] = new queen(i, 1, "W", "q"), scope['W' + i + 'r'] = new rook(i, 1, "W", "r"), scope['W' + i + 'b'] = new bishop(i, 2, "W", "b"), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, scope['B' + i + 'p'] = new paw(i, 21, "B", "p"), scope['B' + i + 'r'] = new rook(i, 22, "B", "r"), 0);
+            linea.push(scope['W' + i + 'q'] = new queen(i, 1, "W", "q"), scope['W' + i + 'r'] = new rook(i, 1, "W", "r"), scope['W' + i + 'b'] = new bishop(i, 2, "W", "b"), scope['W' + i + 'r'] = new rook(i, 3, "W", "r"), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, scope['B' + i + 'p'] = new paw(i, 21, "B", "p"), scope['B' + i + 'r'] = new rook(i, 22, "B", "r"), 0);
             /* for (let j = 0; j < taulellxMAX; j++) {
                 //linea.push([ 0, 0, 0, … ]);
             }*/
