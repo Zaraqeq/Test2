@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    table {
+        border-collapse: collapse;
+
+    }
+
+    table,
+    th,
+    td {
+        border: 2px solid black;
+
+    }
+
+    
+
+    td {
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        background-size: cover;
+    }
+
+    td:hover{
+        background-color: red;
+    }
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+var socket = io();
+let lastX, lastY;
+
+let colorPlayer1 = "#00BFFF";
+let colorPlayer2 = "#FFAD00";
+const taulellyMAX = 24;
+const taulellxMAX = 24;
+
+window.onload = function (event) { createTable() };
+let taulell = [];
+let pint = [];
+
+socket.on('message', function (data) {
+    mess = JSON.parse(data)
+    let turn;
+    //console.log("-->"+mess);
+    if (mess[0] == "Taulell") {
+        taulell = [];
+        console.log("Taulell");
+        taulell = mess[1];
+        rellenarTaulell();
+    }
+
+    if (mess[0] == "Pintar") {
+        pint = [];
+        console.log("Pintar");
+        pint = mess[1];
+        rellenarPint();
+    }
+    if(mess[0]=="Turn")
+    {
+        console.log("Turn");
+        if(mess[1]==true)
+        {
+            turn = "Blanc";
+        }else if(mess[1]==false)
+        {
+            turn="Negre";
+        }
+
+        document.getElementById("Turn").innerHTML = turn;
+        
+    }
+    if(mess[0]=="Error")
+    {
+        console.log("Error");
+        alert(mess[1]);
+    }
+
+    //
+});
+
+function send(idy, idx) {
+    let pos = [idy, idx];
+    let json = JSON.stringify(pos);
+    socket.emit('message',json);
+}
+
+/*function moureRect(idx, idy) {
+    if (idx == lastX || idy == lastY) {
+        taulell[idy][idx] = 'Br';
+        taulell[lastY][lastX] = 0;
+    }
+}*/
+
+function createTable()
+{
+    var body = document.getElementsByTagName('body')[0];
+    body.setAttribute("class", "container");
+    var tbl = document.createElement('table');
+    tbl.style.width = '100%';
+    tbl.setAttribute('border', '1');
+    
+    for (var i = 0; i < taulellyMAX; i++) {
+        var tr = document.createElement('tr');
+        for (var j = 0; j < taulellxMAX; j++) {
+                var td = document.createElement('td');
+                td.setAttribute('id', 'pos['+i+']['+j+']');
+                td.setAttribute('onclick', 'send('+i+','+j+')');
+                tr.appendChild(td)
+            
+        }
+        tbl.appendChild(tr);
+    }
+    
+    body.appendChild(tbl);
+}
+
+function rellenarTaulell() {
+    
+
+    for (let i = 0; i < taulellyMAX; i++) {
+        for (let x = 0; x < taulellxMAX; x++) {
+            //console.log("X: "+x+" Y: "+i);
+            var pesa = taulell[i][x].color+taulell[i][x].pesa;
+            
+            switch(pesa){
+                
+                case '0' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";break;
+                case 'Br' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Br.png')";break;
+                case 'Wr' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Wr.png')";break;
+                case 'Bb' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Bb.png')";break;
+                case 'Wb' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Wb.png')";break;
+                case 'Bk' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Bk.png')";break;
+                case 'Wk' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Wk.png')";break;
+                case 'Bq' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Bq.png')";break;
+                case 'Wq' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Wq.png')";break;
+                case 'Bp' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Bp.png')";break;
+                case 'Wp' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Wp.png')";break;
+                case 'Bh' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Bh.png')";break;
+                case 'Wh' : document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "url('Bh.png')";break;
+                default: break;
+            }
+
+            if (taulell[i][x] == '0') document.getElementById('pos[' + i + '][' + x + ']').style.backgroundImage = "none";
+            
+            
+        }
+    }
+}
+
+function rellenarPint()
+{
+    console.log(pint);
+    for (let i = 0; i < taulellyMAX; i++) {
+        for (let x = 0; x < taulellxMAX; x++) {
+    if(pint[i][x]=="W")
+            {
+                document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer1;
+            } 
+            if(pint[i][x]=="B")
+            {
+                document.getElementById('pos[' + i + '][' + x + ']').style.backgroundColor = colorPlayer2;
+            }
+        }
+    }
+}
+</script>
+
+<!--<script src="./script.js"></script>-->
+
+<body>
+    <div id="Turn"></div>
+    <div class="container">
+        <!--<table>
+            <tr>
+                <td onclick="send(0, 0)" id="pos[0][0]"></td>
+                <td onclick="send(0, 1)" id="pos[0][1]"></td>
+                <td onclick="send(0, 2)" id="pos[0][2]"></td>
+                <td onclick="send(0, 3)" id="pos[0][3]"></td>
+            </tr>
+            <tr>
+                <td onclick="send(1, 0)" id="pos[1][0]"></td>
+                <td onclick="send(1, 1)" id="pos[1][1]"></td>
+                <td onclick="send(1, 2)" id="pos[1][2]"></td>
+                <td onclick="send(1, 3)" id="pos[1][3]"></td>
+            </tr>
+            <tr>
+                <td onclick="send(2, 0)" id="pos[2][0]"></td>
+                <td onclick="send(2, 1)" id="pos[2][1]"></td>
+                <td onclick="send(2, 2)" id="pos[2][2]"></td>
+                <td onclick="send(2, 3)" id="pos[2][3]"></td>
+            </tr>
+            <tr>
+                <td onclick="send(3, 0)" id="pos[3][0]"></td>
+                <td onclick="send(3, 1)" id="pos[3][1]"></td>
+                <td onclick="send(3, 2)" id="pos[3][2]"></td>
+                <td onclick="send(3, 3)" id="pos[3][3]"></td>
+            </tr>
+        </table>-->
+
+    </div>
+
+</body>
+
+</html>
